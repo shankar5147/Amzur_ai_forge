@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+:root {
+  --paper: #fff9f4;
+  --ink: #1e1a17;
+  --muted: #655a53;
+  --clay: #c65a33;
+  --mist: #efe7df;
+}
+
+@theme {
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "IBM Plex Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff4e9 0%, #ffe9de 52%, #f9f2e8 100%);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+#root {
+  min-height: 100vh;
+}
