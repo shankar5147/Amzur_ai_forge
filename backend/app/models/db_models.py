@@ -26,6 +26,9 @@ class User(Base):
     )
 
     threads: Mapped[list[Thread]] = relationship("Thread", back_populates="user", lazy="selectin")
+    generated_images: Mapped[list[GeneratedImage]] = relationship(
+        "GeneratedImage", back_populates="user", lazy="selectin", cascade="all, delete-orphan"
+    )
 
 
 class Thread(Base):
@@ -45,6 +48,9 @@ class Thread(Base):
     messages: Mapped[list[Message]] = relationship("Message", back_populates="thread", lazy="selectin", cascade="all, delete-orphan")
     attachments: Mapped[list[Attachment]] = relationship(
         "Attachment", back_populates="thread", lazy="selectin", cascade="all, delete-orphan"
+    )
+    generated_images: Mapped[list[GeneratedImage]] = relationship(
+        "GeneratedImage", back_populates="thread", lazy="selectin", cascade="all, delete-orphan"
     )
 
 
@@ -77,3 +83,17 @@ class Attachment(Base):
 
     thread: Mapped[Thread] = relationship("Thread", back_populates="attachments")
     message: Mapped[Message | None] = relationship("Message", back_populates="attachments")
+
+
+class GeneratedImage(Base):
+    __tablename__ = "generated_images"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    thread_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("threads.id", ondelete="CASCADE"), nullable=False, index=True)
+    prompt: Mapped[str] = mapped_column(Text, nullable=False)
+    image_url: Mapped[str] = mapped_column(String(1024), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    user: Mapped[User] = relationship("User", back_populates="generated_images")
+    thread: Mapped[Thread] = relationship("Thread", back_populates="generated_images")

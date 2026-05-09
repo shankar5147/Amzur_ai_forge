@@ -9,6 +9,7 @@ import { useAuth } from "./context/AuthContext";
 import {
   createThread,
   deleteThread,
+  generateImage,
   getChatHistory,
   getThreads,
   sendMessage,
@@ -16,6 +17,27 @@ import {
   updateThread,
 } from "./services/chatApi";
 import type { ChatMessage, PendingAttachment, Thread } from "./types/chat";
+
+const IMAGE_INTENT_REGEX =
+  /\b(generate|create|draw|design|render|make)\b.{0,60}\b(image|picture|photo|logo|art|illustration)\b/i;
+const IMAGE_EDIT_INTENT_REGEX =
+  /\b(change|modify|update|alter|make it|turn it|color|recolor|replace|add|remove)\b/i;
+
+function isImageIntent(text: string): boolean {
+  return IMAGE_INTENT_REGEX.test(text.trim());
+}
+
+function isImageEditIntent(text: string): boolean {
+  return IMAGE_EDIT_INTENT_REGEX.test(text.trim());
+}
+
+function hasImageInConversation(messages: ChatMessage[]): boolean {
+  return messages.some((message) =>
+    message.attachments?.some((attachment) =>
+      attachment.mime_type.toLowerCase().startsWith("image/"),
+    ),
+  );
+}
 
 function createMessage(
   role: ChatMessage["role"],
@@ -40,9 +62,11 @@ function ChatPage() {
   const [pendingAttachments, setPendingAttachments] = useState<
     PendingAttachment[]
   >([]);
-  const [loading, setLoading] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const loading = chatLoading || imageLoading;
 
   const clearPendingAttachments = useCallback(() => {
     setPendingAttachments((prev) => {
@@ -155,13 +179,83 @@ function ChatPage() {
     [],
   );
 
+  const handleGenerateImage = useCallback(
+    async (promptInput?: string) => {
+      const promptText = (promptInput ?? input).trim();
+      const messageText = null;
+
+      if (!promptText || loading) {
+        return;
+      }
+
+      setError(null);
+      setInput("");
+      setImageLoading(true);
+
+      try {
+        const result = await generateImage({
+          prompt: promptText,
+          message: messageText,
+          thread_id: activeThreadId,
+        });
+        clearPendingAttachments();
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: result.user_message.id,
+            role: result.user_message.role,
+            content: result.user_message.content,
+            attachments: result.user_message.attachments,
+          },
+          {
+            id: result.assistant_message.id,
+            role: result.assistant_message.role,
+            content: result.assistant_message.content,
+            attachments: result.assistant_message.attachments,
+          },
+        ]);
+
+        if (!activeThreadId) {
+          setActiveThreadId(result.thread_id);
+        }
+
+        const refreshedThreads = await getThreads();
+        setThreads(refreshedThreads.threads);
+      } catch (err) {
+        const text =
+          err instanceof Error ? err.message : "Image generation failed.";
+        setError(text);
+        setMessages((prev) => [
+          ...prev,
+          createMessage(
+            "assistant",
+            "I could not generate that image right now.",
+          ),
+        ]);
+      } finally {
+        setImageLoading(false);
+      }
+    },
+    [activeThreadId, clearPendingAttachments, input, loading],
+  );
+
   const handleSend = async () => {
     const trimmed = input.trim();
     const uploadedAttachmentIds = pendingAttachments
       .filter((item) => item.status === "uploaded" && item.attachment_id)
       .map((item) => item.attachment_id!);
+    const imageContextAvailable = hasImageInConversation(messages);
+    const shouldGenerateImage =
+      isImageIntent(trimmed) ||
+      (isImageEditIntent(trimmed) && imageContextAvailable);
 
     if ((!trimmed && uploadedAttachmentIds.length === 0) || loading) return;
+
+    if (trimmed && uploadedAttachmentIds.length === 0 && shouldGenerateImage) {
+      await handleGenerateImage(trimmed);
+      return;
+    }
 
     setError(null);
     setInput("");
@@ -180,7 +274,7 @@ function ChatPage() {
 
     const userMessage = createMessage("user", trimmed, optimisticAttachments);
     setMessages((prev) => [...prev, userMessage]);
-    setLoading(true);
+    setChatLoading(true);
 
     try {
       const result = await sendMessage({
@@ -212,7 +306,7 @@ function ChatPage() {
         ),
       ]);
     } finally {
-      setLoading(false);
+      setChatLoading(false);
     }
   };
 
@@ -371,11 +465,14 @@ function ChatPage() {
               !!input.trim() ||
               pendingAttachments.some((item) => item.status === "uploaded")
             }
+            canGenerateImage={!!input.trim()}
+            generatingImage={imageLoading}
             attachments={pendingAttachments}
             onChange={setInput}
             onFilesAdded={handleFilesAdded}
             onRemoveAttachment={handleRemoveAttachment}
             onSubmit={handleSend}
+            onGenerateImage={() => void handleGenerateImage()}
           />
         </section>
 

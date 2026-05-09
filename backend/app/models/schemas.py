@@ -123,5 +123,38 @@ class AttachmentPreviewResponse(BaseModel):
     truncated: bool = False
 
 
+class GeneratedImageOut(BaseModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    thread_id: uuid.UUID
+    prompt: str
+    image_url: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class ImageGenerationRequest(BaseModel):
+    prompt: str = Field(..., min_length=3)
+    thread_id: uuid.UUID | None = None
+    message: str | None = Field(default=None, max_length=4000)
+
+    @model_validator(mode="after")
+    def validate_payload(self) -> ImageGenerationRequest:
+        self.prompt = self.prompt.strip()
+        if self.message:
+            self.message = self.message.strip()
+        if not self.prompt:
+            raise ValueError("Prompt is required.")
+        return self
+
+
+class ImageGenerationResponse(BaseModel):
+    thread_id: uuid.UUID
+    user_message: MessageOut
+    assistant_message: MessageOut
+    image: GeneratedImageOut
+
+
 # Fix forward reference
 AuthResponse.model_rebuild()

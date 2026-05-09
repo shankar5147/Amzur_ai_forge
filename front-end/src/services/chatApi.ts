@@ -3,6 +3,8 @@ import type {
   AttachmentPreview,
   AuthResponse,
   ChatHistoryResponse,
+  ImageGenerationRequest,
+  ImageGenerationResponse,
   ChatRequest,
   ChatResponse,
   GoogleAuthRequest,
@@ -136,6 +138,20 @@ export async function getChatHistory(
     },
   });
   return handleResponse<ChatHistoryResponse>(response);
+}
+
+export async function generateImage(
+  payload: ImageGenerationRequest,
+): Promise<ImageGenerationResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/images/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+  return handleResponse<ImageGenerationResponse>(response);
 }
 
 export async function listThreadAttachments(

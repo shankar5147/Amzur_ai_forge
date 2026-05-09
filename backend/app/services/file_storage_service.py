@@ -6,6 +6,7 @@ import json
 import re
 import uuid
 import zipfile
+import mimetypes
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -121,6 +122,27 @@ class FileStorageService:
 
     def resolve_path(self, relative_path: str) -> Path:
         return self._root / relative_path
+
+    async def save_generated_image(
+        self,
+        thread_id: uuid.UUID,
+        image_bytes: bytes,
+        mime_type: str,
+    ) -> StoredFile:
+        if not image_bytes:
+            raise FileStorageError("Generated image payload is empty.")
+
+        destination_dir = self._root / str(thread_id)
+        destination_dir.mkdir(parents=True, exist_ok=True)
+
+        extension = mimetypes.guess_extension(mime_type) or ".png"
+        file_name = f"generated_image{extension}"
+        stored_name = f"{uuid.uuid4().hex}_{file_name}"
+        destination_path = destination_dir / stored_name
+
+        await anyio.to_thread.run_sync(destination_path.write_bytes, image_bytes)
+        relative_path = destination_path.relative_to(self._root).as_posix()
+        return StoredFile(file_name=file_name, mime_type=mime_type, file_path=relative_path)
 
     @staticmethod
     def _sanitize_filename(name: str) -> str:

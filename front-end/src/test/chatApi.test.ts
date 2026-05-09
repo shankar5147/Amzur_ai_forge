@@ -7,6 +7,7 @@ import {
   createThread,
   updateThread,
   deleteThread,
+  generateImage,
   sendMessage,
   getChatHistory,
 } from "../services/chatApi";
@@ -210,6 +211,50 @@ describe("chatApi service", () => {
         `${API_BASE}/api/chat/history/t1`,
         expect.objectContaining({ method: "GET" }),
       );
+    });
+  });
+
+  describe("generateImage", () => {
+    it("calls POST /api/images/generate", async () => {
+      vi.stubGlobal(
+        "fetch",
+        mockFetch(201, {
+          thread_id: "t1",
+          user_message: {
+            id: "u1",
+            role: "user",
+            content: "Generate an image",
+            created_at: "",
+            attachments: [],
+          },
+          assistant_message: {
+            id: "a1",
+            role: "assistant",
+            content: "Generated image based on your prompt.",
+            created_at: "",
+            attachments: [],
+          },
+          image: {
+            id: "img1",
+            user_id: "usr",
+            thread_id: "t1",
+            prompt: "Futuristic city",
+            image_url: "t1/generated.png",
+            created_at: "",
+          },
+        }),
+      );
+
+      const result = await generateImage({
+        prompt: "Futuristic city",
+        thread_id: "t1",
+      });
+
+      expect(fetch).toHaveBeenCalledWith(
+        `${API_BASE}/api/images/generate`,
+        expect.objectContaining({ method: "POST" }),
+      );
+      expect(result.image.image_url).toContain("generated");
     });
   });
 });

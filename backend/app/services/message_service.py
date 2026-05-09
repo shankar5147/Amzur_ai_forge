@@ -45,3 +45,12 @@ class MessageService:
         # Return in chronological order
         messages.reverse()
         return messages
+
+    async def get_message_with_attachments(self, message_id: uuid.UUID) -> Message | None:
+        stmt = (
+            select(Message)
+            .options(selectinload(Message.attachments))
+            .where(Message.id == message_id)
+        )
+        result = await self._db.execute(stmt)
+        return result.scalar_one_or_none()

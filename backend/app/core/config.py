@@ -54,5 +54,11 @@ class Settings:
     max_upload_bytes: int = int(os.getenv("MAX_UPLOAD_BYTES", str(15 * 1024 * 1024)))
     max_attachment_context_items: int = int(os.getenv("MAX_ATTACHMENT_CONTEXT_ITEMS", "5"))
 
+    # AI image generation
+    imagen_model: str = os.getenv("IMAGEN_MODEL", "gemini/imagen-4.0-fast-generate-001")
+    max_image_prompt_chars: int = int(os.getenv("MAX_IMAGE_PROMPT_CHARS", "1000"))
+    image_generation_rate_limit_count: int = int(os.getenv("IMAGE_GENERATION_RATE_LIMIT_COUNT", "5"))
+    image_generation_rate_limit_window_seconds: int = int(os.getenv("IMAGE_GENERATION_RATE_LIMIT_WINDOW_SECONDS", "60"))
+
 
 settings = Settings()

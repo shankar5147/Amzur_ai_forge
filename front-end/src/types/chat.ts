@@ -41,6 +41,28 @@ export interface ChatHistoryResponse {
   messages: MessageOut[];
 }
 
+export interface GeneratedImage {
+  id: string;
+  user_id: string;
+  thread_id: string;
+  prompt: string;
+  image_url: string;
+  created_at: string;
+}
+
+export interface ImageGenerationRequest {
+  prompt: string;
+  thread_id?: string | null;
+  message?: string | null;
+}
+
+export interface ImageGenerationResponse {
+  thread_id: string;
+  user_message: MessageOut;
+  assistant_message: MessageOut;
+  image: GeneratedImage;
+}
+
 export interface UploadAttachmentsResponse {
   attachments: Attachment[];
 }
