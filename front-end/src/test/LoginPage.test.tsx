@@ -61,13 +61,13 @@ describe("LoginPage", () => {
     (login as ReturnType<typeof vi.fn>).mockResolvedValue({
       access_token: "token",
       token_type: "bearer",
-      user: { id: "1", email: "a@b.com", full_name: "A" },
+      user: { id: "1", email: "a@amzur.com", full_name: "A" },
     });
 
     renderLoginPage();
 
     fireEvent.change(screen.getByPlaceholderText(/email/i), {
-      target: { value: "a@b.com" },
+      target: { value: "a@amzur.com" },
     });
     fireEvent.change(screen.getByPlaceholderText(/password/i), {
       target: { value: "Password1!" },
@@ -78,7 +78,7 @@ describe("LoginPage", () => {
 
     await waitFor(() => {
       expect(login).toHaveBeenCalledWith({
-        email: "a@b.com",
+        email: "a@amzur.com",
         password: "Password1!",
       });
     });
@@ -93,10 +93,10 @@ describe("LoginPage", () => {
     renderLoginPage();
 
     fireEvent.change(screen.getByPlaceholderText(/email/i), {
-      target: { value: "bad@b.com" },
+      target: { value: "bad@amzur.com" },
     });
     fireEvent.change(screen.getByPlaceholderText(/password/i), {
-      target: { value: "wrong" },
+      target: { value: "WrongPass1!" },
     });
     fireEvent.click(
       screen.getByText("Sign In", { selector: "button[type='submit']" }),
@@ -112,7 +112,7 @@ describe("LoginPage", () => {
     (signup as ReturnType<typeof vi.fn>).mockResolvedValue({
       access_token: "token",
       token_type: "bearer",
-      user: { id: "1", email: "new@b.com", full_name: "New User" },
+      user: { id: "1", email: "new@amzur.com", full_name: "New User" },
     });
 
     renderLoginPage();
@@ -122,7 +122,7 @@ describe("LoginPage", () => {
       target: { value: "New User" },
     });
     fireEvent.change(screen.getByPlaceholderText(/email/i), {
-      target: { value: "new@b.com" },
+      target: { value: "new@amzur.com" },
     });
     fireEvent.change(screen.getByPlaceholderText(/password/i), {
       target: { value: "StrongPass1!" },
@@ -133,7 +133,7 @@ describe("LoginPage", () => {
 
     await waitFor(() => {
       expect(signup).toHaveBeenCalledWith({
-        email: "new@b.com",
+        email: "new@amzur.com",
         password: "StrongPass1!",
         full_name: "New User",
       });

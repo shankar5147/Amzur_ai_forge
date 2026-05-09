@@ -77,6 +77,68 @@ class TestChatEndpoint:
         resp = await client.post("/api/chat", json={"message": ""}, headers=auth_headers)
         assert resp.status_code == 422
 
+    @pytest.mark.asyncio
+    @patch("app.api.routes.chat.AttachmentAIService")
+    @patch("app.api.routes.chat.ChatService")
+    async def test_chat_uses_thread_attachments_when_ids_not_provided(
+        self,
+        MockChatService,
+        MockAttachmentAIService,
+        client: AsyncClient,
+        auth_headers: dict,
+    ):
+        mock_chat = MockChatService.return_value
+        mock_chat.generate_response = AsyncMock(return_value="Answer from CSV context")
+
+        mock_ai = MockAttachmentAIService.return_value
+        mock_ai.build_context_blocks = AsyncMock(return_value=["[Table attachment context]"])
+
+        create_resp = await client.post("/api/threads", json={"name": "New Chat"}, headers=auth_headers)
+        thread_id = create_resp.json()["id"]
+
+        upload_resp = await client.post(
+            "/api/attachments/upload",
+            headers=auth_headers,
+            data={"thread_id": thread_id},
+            files={"files": ("sales.csv", b"month,revenue\nJan,100", "text/csv")},
+        )
+        assert upload_resp.status_code == 201
+
+        resp = await client.post(
+            "/api/chat",
+            json={"message": "What is Jan revenue?", "thread_id": thread_id},
+            headers=auth_headers,
+        )
+        assert resp.status_code == 200
+        mock_ai.build_context_blocks.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    @patch("app.api.routes.chat.ChatService")
+    async def test_chat_updates_default_thread_name_on_existing_thread(
+        self,
+        MockChatService,
+        client: AsyncClient,
+        auth_headers: dict,
+    ):
+        mock_chat = MockChatService.return_value
+        mock_chat.generate_response = AsyncMock(return_value="Done")
+        mock_chat.generate_thread_name = AsyncMock(return_value="Revenue by Month")
+
+        create_resp = await client.post("/api/threads", json={"name": "New Chat"}, headers=auth_headers)
+        thread_id = create_resp.json()["id"]
+
+        chat_resp = await client.post(
+            "/api/chat",
+            json={"message": "Analyze revenue trends", "thread_id": thread_id},
+            headers=auth_headers,
+        )
+        assert chat_resp.status_code == 200
+
+        threads_resp = await client.get("/api/threads", headers=auth_headers)
+        assert threads_resp.status_code == 200
+        thread = next(t for t in threads_resp.json()["threads"] if t["id"] == thread_id)
+        assert thread["name"] == "Revenue by Month"
+
 
 class TestChatHistoryEndpoint:
     @pytest.mark.asyncio

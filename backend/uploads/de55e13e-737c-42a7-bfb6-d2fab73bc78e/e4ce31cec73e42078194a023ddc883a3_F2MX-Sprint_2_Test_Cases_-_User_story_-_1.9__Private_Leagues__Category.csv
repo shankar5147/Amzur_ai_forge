@@ -1,0 +1,449 @@
+Test Case ID,Functionality,Test Case type,Test Objective,Test Executions Steps,Expected Result,DevAssignee,DevStatus,Dev Comments
+TC01,Join League >> Private League,Positive,Verify navigate to the Private League category,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Verify the Private League category.","- Application should display the Join League screen with two tabs as
+ a. Invite Code
+ b. Join Private leagues
+ c. Join PrIvate Leagues
+
+- Application should display back arrow before the Join League header.",Shankar,,
+TC02,Join League >> Private League,Positive,verify select the Private League category.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Verify select the Private League category","- Application should allow user to select the Private league category and highlight the category.
+
+- Application should display Private leagues screen and load all the Private leagues.",Shankar,,
+TC03,Join League >> Privaye League,Positive,Verify the Private league landing screen.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Private league landing screen.",- Application should display the Private leagues which the user is eligible based on the user’s current XP tier.,Shankar,,
+TC04,Join League >> Private League,Negative,Verify Private leagues are displayed in the listing page.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the private leagues displayed in the. landing screen.",- Application should not display the Private leagues in the Private leagues category.,Shankar,,
+TC05,Join League >> Private League,Positive,Verify the displaying of leagues,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the listing of leagues.","- Application should display the leagues in the order as mentioned below.
+ a. Open Leagues with available slots
+ b. Leagues nearing full capacity
+ c. Recently created leagues
+ d. Full leagues
+",Shankar,,
+TC06,Join League >> Private League,Negative,Verify the no Private leagues scenario.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the no Private leagues message","- Application should display message as ""No Private leagues Available""",Shankar,,
+TC07,Join League >> Private League,Negative,Verify leagues requiring higher XP.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the leagues are displayed which require higher XP.",- Application should hide / should not display the leagues which are having higher XP than users current XP.,Shankar,,
+TC08,Join League >> Private League,Positive,Verify the Leagues displayed in the listing screen.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the League displayed.",- Application should display the each league as a  League Card.,Shankar,,
+TC09,Join League >> Private League,Positive,Verify the League card UI,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the League card displayed.","- Application should display the information on the card as mentioned below.
+ a. League Name 
+ b. League Type 
+ c. League Status
+ c. Current Week
+ d. Season Progress
+ e. Team Capacity
+ f. Tier
+ g. Join League - button",Shankar,,
+TC10,Join League >> Private League,Positive,Verify edit the values displayed on League card,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify edit the League card details displayed.",- Application should not allow user to edit the details of the league.,Shankar,,
+TC11,Join League >> Private League,Positive,Verify the League name information on the card,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the League name on the League card displayed.","- Application should display the League name which is provided by the admin.
+
+- Application should not any user to edit the league name and it is non editable.",Shankar,,
+TC12,Join League >> Private League,Positive,Verify the League Type value,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the League Type on the League card displayed.","- Application should display the League type as ""Private"" on the card.",Shankar,,
+TC13,Join League >> Private League,Negative,Verify league type displayed as Private,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the League Type as Private on the card.",- Application should not display the league type as Private as the category belongs to Private leagues only.,Shankar,,
+TC14,Join League >> Private League,Positive,Verify the League status label in the league card.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the league status label in the league card.","- Application should display the status of the league form any of the three values mentioned.
+ a. Open
+ b. Active
+ c. Full",Shankar,,
+TC15,Join League >> Private League,Positive,Verify the League status for the newly created league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the league status for the newly created league.",- Application should display the League status as Open for newly created league.,Shankar,,
+TC16,Join League >> Private League,Positive,Verify the League status for the Partially filled league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the league status for the partially filled league.",- Application should display the League status as Open for newly created league.,Shankar,,
+TC17,Join League >> Private League,Positive,Verify the League status completed filled league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the league status for the completely filled league.",- Application should display the League status as Full for completely filled league.,Shankar,,
+TC18,Join League >> Private League,Positive,Verify the League status after season started.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the league status after season started.",- Application should display the League status as Active for completely filled league.,Shankar,,
+TC19,Join League >> Private League,Positive,Verify the Current week if the league is not started yet.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Current week for not started leagues.",- Application should display the current week value as week 1 by default if league is not started yet.,Shankar,,
+TC20,Join League >> Private League,Positive,Verify the Current week if the league is ended.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Current week for completed leagues.","- Application should display the last week of the league as current week 
+
+Ex: If league is scheduled for 8 weeks, so current week will be Week 8.",Shankar,,
+TC21,Join League >> Private League,Positive,Verify the Season progress option in the League card.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Season progress option in the league card.","- Application should display the progress of the leagues based on the weeks completed.
+
+Ex: If league is for 8 weeks and completed 4 weeks, then it should display Week 4 of 8.",Shankar,,
+TC22,Join League >> Private League,Positive,Verify the Season progress for the completed league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Season progress for the completed league","- Application should display the final season progress for the completed league
+
+Ex: If league is for 8 weeks and completed 8 weeks, then it should display Week 8 of 8.",Shankar,,
+TC23,Join League >> Private League,Positive,Verify the Season progress for the not started league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Season progress for the not started leagues.","- Application should display the initial week out of total weeks in the season progress as default value.
+
+Ex: If league is for 8 weeks and not started, then it should display Week  of 1.",Shankar,,
+TC24,Join League >> Private League,Positive,Verify the Team Capacity in the league card.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Team Capacity option in the League card.","- Application should display the number of players/teams joined in the league against the total capacity
+
+Ex: If Admin set users of 20 while created league and 11 players joined league, then Team capacity should display as 8 / 12 Teams Joined.",Shankar,,
+TC25,Join League >> Private League,Positive,Verify the Team Capacity for newly created league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Team Capacity for not started league.","- Application should display the number of players joined 0 against the total teams capacity.
+
+- Application should display the League Status as ""Open.""
+
+Ex: If league capacity is 10 and league not started yet, the team capacity should display as 0 / 10 Teams Joined.",Shankar,,
+TC26,Join League >> Private League,Positive,Verify the Team Capacity for fully joined league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Team Capacity for fully joined league","- Application should display the total number of teams by total capacity of league.
+
+- Application should display the League Status as ""Full.""
+
+Ex: If league capacity is 10 and if league is full, then the team capacity should display as 10 / 10 Teams Joined.",Shankar,,
+TC27,Join League >> Private League,Positive,Verify the Tier of the League,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category.
+4. Check for the tier information.","- Application should display Tier as any one of the options Rookie/Amateur/Pro/Coordinator/Head Coach 
+
+- Application should display the tier that admin has provided while creating a league.",Shankar,,
+TC28,Join League >> Private League,Positive,Verify the display of League with tier Rookie.,"1. Login as User into the mobile application having any tier.
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category.
+4. Check for the Leagues with Tier Rookie.","- Application should display League to all users who are having XP tier as Rookie/Amateur/Pro/Coordinator/Head Coach 
+",Strike off in brd,,
+TC29,Join League >> Private League,Positive,Verify the display of League with tier Amateur.,"1. Login as User into the mobile application having any tier.
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category.
+4. Check for the Leagues with Tier Amateur.","- Application should display the League to users whose XP tier is Amateur/Pro/Coordinator/Head Coach 
+
+- Application should not display league to user with XP tier as Rookie.",Shankar,,
+TC30,Join League >> Private League,Positive,Verify the display of League with tier Pro.,"1. Login as User into the mobile application having any tier.
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category.
+4. Check for the Leagues with Tier Pro.","- Application should display the League to users whose XP tier is Pro/Coordinator/Head Coach 
+
+- Application should not display league to user with XP tier as Rookie/Amateur.",Shankar,,
+TC31,Join League >> Private League,Positive,Verify the display of League with tier Coordinator.,"1. Login as User into the mobile application having any tier.
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category.
+4. Check for the Leagues with Tier Coordinator.","- Application should display the League to users whose XP tier is Coordinator/Head Coach 
+
+- Application should not display league to user with XP tier as Rookie/Amateur/Pro.",Shankar,,
+TC32,Join League >> Private League,Positive,Verify the display of League with tier Head Coach.,"1. Login as User into the mobile application having any tier.
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category.
+4. Check for the Leagues with Tier Head Coach.","- Application should display the League to users whose XP tier is Head Coach 
+
+- Application should not display league to user with XP tier as Rookie/Amateur/Pro/Coordinator.",Shankar,,
+TC33,Join League >> Private League,Positive,Verify Join League button in the League card.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Join League button in the league card.","- Application should display Join League button for the League which status is ""Open.""
+
+- Application should display hand symbol when hover on the button.",Shankar,,
+TC34,Join League >> Private League,Negative,Verify Join League button for Active status leagues,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Join League button for Active status leagues.","- Application should not allow user to join league if the League status is ""Active.""",Shankar,,
+TC35,Join League >> Private League,Negative,Verify Join League button for Full status leagues,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify the Join League button for Full status leagues.","- Application should not allow user to join league if the League status is ""Full.""",Shankar,,
+TC36,Join League >> Private League,Positive,Verify the Join League button functionality,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on the Join League button.
+5. Verify the result.","- Application should allow user to join the league successfully.
+
+- Application should display success toast as ""You have successfully joined the league.""",Shankar,,
+TC37,Join League >> Private League,Positive,Verify participant count update after join,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on the Join League button.
+5. Verify the participant count after joining the league.","- Application should update the participant count respectively based on the joined users (Ex: is before join count is 8/12 then count should update to 9/12)
+
+- Application should display league status (Open, Full) based on the slots",Shankar,,
+TC38,Join League >> Private League,Positive,Verify the League joined by the user.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on the Join League button.
+5. Verify the league user has joined.","- Application should display the league under My Leagues (All, Upcoming, Completed after league completed) category immediately after joining the league.",Shankar,,
+TC39,Join League >> Private League,Negative,Verify the League joined is displayed under Private leagues category,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on the Join League button.
+5. Verify the league is being displayed under Private leagues category.",- Application should not display the joined league in the Private leagues list anymore for the user.,Shankar,,
+TC40,Join League >> Private League,Negative,Verify Join Active/Full Leagues.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Verify click on the Join League button for Active/Full leagues.",- Application should disable/Should not display the Join league button and not allow user to join the Active/Full leagues.,Shankar,,
+TC41,Join League >> Private League,Negative,Verify joining fails when league becomes full during join,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on the Join League button
+5. Verify the result when league is filled during join.","- Application should display toast/message as ""League is now full"" to the user",Shankar,,
+TC42,Join League >> Private League,Negative,Verify join same league multiple time.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Join into an open league
+5. Verify joining the same league again.",- Application should not allow user to join the same league twice.,Shankar,,
+TC43,Join League >> Private League,Positive,Verify click on the League card,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a League card.","- Application should display league detail view popup with header as Join League with following elements as mentioned.
+ a. League Name
+ b. League status
+ c. League type
+ d. Scoring model
+ e. Teams
+ f. Week
+ g. Tier
+ h. Commissioner
+ i. Starting Allocation
+ j. Start date
+ k. Buy-In configuration
+ l. Playoffs Status
+ m. Join League button
+ n. Cross icon.",Shankar,,
+TC44,Join League >> Private League,Positive,Verify the League name information in the detail view,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the League name information","- Application should display the League name which is provided by the admin.
+
+- Application should not any user to edit the league name and it is non editable.",Shankar,,
+TC45,Join League >> Private League,Positive,Verify the League status information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the League status information",- Application should display the current status of the league as Open/Full/Active,Shankar,,
+TC46,Join League >> Private League,Positive,Verify the League Type information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the League Type information",- Application should display the type of league as Private by default.,Shankar,,
+TC47,Join League >> Private League,,Verify the Scoring model information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Scoring model information",- Application should display the scoring model of the league as Half PPR which is the standard model using.,Shankar,,
+TC48,Join League >> Private League,Positive,Verify the Teams information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Teams information",- Application should display the  teams joined/total teams of the league.,Shankar,,
+TC49,Join League >> Private League,Positive,Verify the Weeks information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Weeks information",- Application should display the total weeks of the league that Admin has set while creating league.,Shankar,,
+TC50,Join League >> Private League,Positive,Verify the Tier information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Tier information",- Application should display the Tier criteria for the league to join.,Shankar,,
+TC51,Join League >> Private League,Positive,Verify the commissioner information of the league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Commissioner information","- Application should display the name of the Admin who created the Private league.
+
+- Application should not provide any possibility to edit or update the value.",Shankar,,
+TC52,Join League >> Private League,Positive,Verify the starting allocation information in the details view.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the starting allocation for the league.","- Application should display the amount that admin has set as a joining bonus into the league.
+
+Ex: 100 dollars for every user joined league.",Shankar,,
+TC53,Join League >> Private League,Positive,Verify the Start date information of the league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Start date information for the league.","- Application should display the start date of the league, which represents league starts on that date.",Shankar,,
+TC54,Join League >> Private League,Positive,Verify the Buy-in configuration for the league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Buy-in configuration for the league.","- Application should display the Buy-In configuration for the leagues Ex: $20 starting allocation, max unlimited buy-ins",Shankar,,
+TC55,Join League >> Private League,Positive,Verify the Playoff status for the league.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. verify the Playoff status for the league.","- Application should display Details about the playoffs, playoff week and playoff teams. 
+Ex: 4 teams qualify, 4 playoff weeks",Shankar,,
+TC56,Join League >> Private League,Positive,Verify the Join League button functionality.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Click on the Join League button.","- Application should allow user to join the league successfully.
+
+- Application should display success toast as ""You have successfully joined the league.""",Shankar,,
+TC57,Join League >> Private League,Positive,verify cross button functionality.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Click on the cross icon.",- Application should navigate user to the Private Leagues category listing page.,Shankar,,
+TC58,Join League >> Private League,positive,Verify navigate back to Leagues listing page.,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Click on the back icon available with the header.",- Application should navigate user to the League module page.,Shankar,,
+TC59,Join Request,Positive,Verify join request can be sent,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Click Request to Join",Application should successfully send a join request to the League Commissioner,Shankar,,
+TC60,Join Request,Positive,Verify the message displayed when join request is send,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Click Request to Join""
+",Application should display the message “Request sent to Commissioner”,Shankar,,
+TC61,Join Request,Negative,Verify duplicate join request is prevented,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+6. Attempt to send another request",Application should display a message as Request already sent need to be accepted by the commissioner ,Shankar,,
+TC62,Join Request,Positive,Verify eligibility validation,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+6. Attempt to join private league with available slots and season not started",Application should validate eligibility successfully,Shankar,,
+TC63,Join Request,Negative,Verify join blocked for ineligible league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5.Attempt to join Full or Active private league",Application should block the join request,Shankar,,
+TC64,Join Request,Positive,Verify request status update,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+6. Send join request
+7. Reopen league card",Application should update the status to Request Pending,Shankar,,
+TC65,Join Request,Negative,Verify only one active request per user per league,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request 1.
+2. Attempt to send another request",Application should prevent multiple active requests,Shankar,,
+TC66,Notifications,Positive,Verify notification sent to Commissioner,"1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. User sends join request",Application should notify the Commissioner/co‑commissioner,Shankar,,
+TC67,Commissioner Actions,Positive,Verify approval of join request,"Precondition : 1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+
+Current steps 
+1. Login as Commissioner
+2. Approve join request",Application should add the user to the league,Shankar,,
+TC68,Commissioner Actions,Positive,Verify league size update on approval,"Precondition : 
+1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+
+Current steps 
+1. Login as Commissioner
+2. Approve join request",Application should increment the league size correctly,Shankar,,
+TC69,Notifications,Positive,Verify user notified on approval,"""Precondition : 
+1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+
+Current steps 
+1. Login as Commissioner
+2. Approve join request""",Application should notify the user of approval,Shankar,,
+TC70,Navigation,Positive,Verify league moves to My Leagues after approval,1. User refreshes leagues view,Application should move the league from Private Leagues to My Leagues,Shankar,,
+TC71,Security,Negative,Verify non‑commissioner cannot approve,1. Login as non‑commissioner user,Application should restrict approval actions,Shankar,,
+TC72,Commissioner Actions,Positive,Verify rejection of join request,"Precondition : 
+1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+
+Current steps 
+1. Login as Commissioner
+2. Reject join request",Application should close the join request,Shankar,,
+TC73,Notifications,Positive,Verify user notified on rejection,"Precondition : 
+1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+
+Current steps 
+1. Login as Commissioner
+2. Reject join request",Application should notify the user of rejection,Shankar,,
+TC74,Join Request,Negative,Verify rejected request cannot be reused,"Precondition : 
+1. Login as User into the mobile application
+2. Click on Leagues module and click on Join a League tile
+3. Click on the Private League category
+4. Click on a league card
+5. Send a join request
+
+Current steps 
+1. Login as Commissioner
+2. After rejection, attempt to join again
+",Application should prevent re‑requesting the same league,Shankar,,
+TC77,Rules,Positive,Verify only approval allows joining,"1. Submit request
+2. Await approval",Application should allow league access only after approval,Shankar,,
+TC79,Edge Case,Negative,Verify league fills after request submission,"1. Submit join request
+2. League reaches full capacity before approval",Application should disable the Join button for new users,Shankar,,
+TC80,Edge Case,Negative,Verify commissioner cannot approve when league is full,1. Attempt to approve pending request after league fills,Application should prevent approval and maintain league capacity,Shankar,,
+TC81,Edge Case,Positive,Verify pending requests handled correctly,1. View pending requests after league is full,Application should block new approvals and keep request status unchanged,Shankar,,

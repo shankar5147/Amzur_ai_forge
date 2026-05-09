@@ -7,22 +7,26 @@ import { LoginPage } from "./components/LoginPage";
 import { ThreadSidebar } from "./components/ThreadSidebar";
 import { useAuth } from "./context/AuthContext";
 import {
+  createThread,
   deleteThread,
   getChatHistory,
   getThreads,
   sendMessage,
+  uploadAttachment,
   updateThread,
 } from "./services/chatApi";
-import type { ChatMessage, Thread } from "./types/chat";
+import type { ChatMessage, PendingAttachment, Thread } from "./types/chat";
 
 function createMessage(
   role: ChatMessage["role"],
   content: string,
+  attachments: ChatMessage["attachments"] = [],
 ): ChatMessage {
   return {
     id: crypto.randomUUID(),
     role,
     content,
+    attachments,
   };
 }
 
@@ -33,9 +37,23 @@ function ChatPage() {
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
+  const [pendingAttachments, setPendingAttachments] = useState<
+    PendingAttachment[]
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const clearPendingAttachments = useCallback(() => {
+    setPendingAttachments((prev) => {
+      for (const item of prev) {
+        if (item.preview_url?.startsWith("blob:")) {
+          URL.revokeObjectURL(item.preview_url);
+        }
+      }
+      return [];
+    });
+  }, []);
 
   // Load threads on mount
   useEffect(() => {
@@ -74,6 +92,7 @@ function ChatPage() {
               id: m.id,
               role: m.role,
               content: m.content,
+              attachments: m.attachments,
             })),
           );
         } else {
@@ -91,6 +110,7 @@ function ChatPage() {
   }, [activeThreadId, user]);
 
   const handleNewThread = useCallback(() => {
+    clearPendingAttachments();
     setActiveThreadId(null);
     setMessages([
       createMessage(
@@ -98,7 +118,7 @@ function ChatPage() {
         `Hello${user?.full_name ? `, ${user.full_name}` : ""}! How can I help you today?`,
       ),
     ]);
-  }, [user]);
+  }, [clearPendingAttachments, user]);
 
   const handleSelectThread = useCallback((threadId: string) => {
     setActiveThreadId(threadId);
@@ -137,31 +157,50 @@ function ChatPage() {
 
   const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed || loading) return;
+    const uploadedAttachmentIds = pendingAttachments
+      .filter((item) => item.status === "uploaded" && item.attachment_id)
+      .map((item) => item.attachment_id!);
+
+    if ((!trimmed && uploadedAttachmentIds.length === 0) || loading) return;
 
     setError(null);
     setInput("");
 
-    const userMessage = createMessage("user", trimmed);
+    const optimisticAttachments = pendingAttachments
+      .filter((item) => item.status === "uploaded")
+      .map((item) => ({
+        id: item.attachment_id ?? item.local_id,
+        thread_id: activeThreadId ?? "",
+        message_id: null,
+        file_name: item.file_name,
+        mime_type: item.mime_type,
+        file_path: item.preview_url ?? "",
+        created_at: new Date().toISOString(),
+      }));
+
+    const userMessage = createMessage("user", trimmed, optimisticAttachments);
     setMessages((prev) => [...prev, userMessage]);
     setLoading(true);
 
     try {
       const result = await sendMessage({
-        message: trimmed,
+        message: trimmed || null,
         thread_id: activeThreadId,
+        attachment_ids: uploadedAttachmentIds,
       });
+      clearPendingAttachments();
       setMessages((prev) => [
         ...prev,
         createMessage("assistant", result.response),
       ]);
 
-      // If this was a new thread, update thread list and set active
       if (!activeThreadId) {
         setActiveThreadId(result.thread_id);
-        const resp = await getThreads();
-        setThreads(resp.threads);
       }
+
+      // Always refresh threads so backend auto-generated names appear immediately.
+      const refreshedThreads = await getThreads();
+      setThreads(refreshedThreads.threads);
     } catch (err) {
       const text = err instanceof Error ? err.message : "Unexpected error";
       setError(text);
@@ -176,6 +215,108 @@ function ChatPage() {
       setLoading(false);
     }
   };
+
+  const ensureThreadForUpload = useCallback(async (): Promise<string> => {
+    if (activeThreadId) {
+      return activeThreadId;
+    }
+
+    const created = await createThread({ name: "New Chat" });
+    setActiveThreadId(created.id);
+    setThreads((prev) => [created, ...prev]);
+    return created.id;
+  }, [activeThreadId]);
+
+  const handleFilesAdded = useCallback(
+    async (files: File[]) => {
+      setError(null);
+      let threadIdForUpload: string;
+
+      try {
+        threadIdForUpload = await ensureThreadForUpload();
+      } catch (err) {
+        const text =
+          err instanceof Error
+            ? err.message
+            : "Failed to create thread for upload.";
+        setError(text);
+        return;
+      }
+
+      for (const file of files) {
+        const localId = crypto.randomUUID();
+        const preview =
+          file.type.startsWith("image/") || file.type.startsWith("video/")
+            ? URL.createObjectURL(file)
+            : undefined;
+
+        setPendingAttachments((prev) => [
+          ...prev,
+          {
+            local_id: localId,
+            file_name: file.name,
+            mime_type: file.type,
+            progress: 1,
+            status: "uploading",
+            preview_url: preview,
+          },
+        ]);
+
+        try {
+          const uploaded = await uploadAttachment(
+            threadIdForUpload,
+            file,
+            (progress) => {
+              setPendingAttachments((prev) =>
+                prev.map((item) =>
+                  item.local_id === localId ? { ...item, progress } : item,
+                ),
+              );
+            },
+          );
+
+          setPendingAttachments((prev) =>
+            prev.map((item) =>
+              item.local_id === localId
+                ? {
+                    ...item,
+                    status: "uploaded",
+                    progress: 100,
+                    mime_type: uploaded.mime_type,
+                    attachment_id: uploaded.id,
+                  }
+                : item,
+            ),
+          );
+        } catch (err) {
+          const text = err instanceof Error ? err.message : "Upload failed.";
+          setPendingAttachments((prev) =>
+            prev.map((item) =>
+              item.local_id === localId
+                ? {
+                    ...item,
+                    status: "error",
+                    error: text,
+                    progress: 100,
+                  }
+                : item,
+            ),
+          );
+        }
+      }
+    },
+    [ensureThreadForUpload],
+  );
+
+  const handleRemoveAttachment = useCallback((localId: string) => {
+    setPendingAttachments((prev) => {
+      const match = prev.find((item) => item.local_id === localId);
+      if (match?.preview_url?.startsWith("blob:")) {
+        URL.revokeObjectURL(match.preview_url);
+      }
+      return prev.filter((item) => item.local_id !== localId);
+    });
+  }, []);
 
   return (
     <div className="relative flex h-screen overflow-hidden">
@@ -226,7 +367,14 @@ function ChatPage() {
           <ChatComposer
             value={input}
             disabled={loading}
+            canSend={
+              !!input.trim() ||
+              pendingAttachments.some((item) => item.status === "uploaded")
+            }
+            attachments={pendingAttachments}
             onChange={setInput}
+            onFilesAdded={handleFilesAdded}
+            onRemoveAttachment={handleRemoveAttachment}
             onSubmit={handleSend}
           />
         </section>

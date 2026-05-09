@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 
 # --- Auth Schemas ---
@@ -64,8 +64,17 @@ class ThreadListResponse(BaseModel):
 # --- Chat Schemas ---
 
 class ChatRequest(BaseModel):
-    message: str = Field(..., min_length=1, max_length=4000)
+    message: str | None = Field(default=None, max_length=4000)
     thread_id: uuid.UUID | None = None  # If None, create a new thread
+    attachment_ids: list[uuid.UUID] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_payload(self) -> ChatRequest:
+        if self.message:
+            self.message = self.message.strip()
+        if not self.message and not self.attachment_ids:
+            raise ValueError("Either message text or at least one attachment is required.")
+        return self
 
 
 class ChatResponse(BaseModel):
@@ -78,12 +87,40 @@ class MessageOut(BaseModel):
     role: str
     content: str
     created_at: datetime
+    attachments: list[AttachmentOut] = Field(default_factory=list)
 
     model_config = {"from_attributes": True}
 
 
 class ChatHistoryResponse(BaseModel):
     messages: list[MessageOut]
+
+
+class AttachmentOut(BaseModel):
+    id: uuid.UUID
+    thread_id: uuid.UUID
+    message_id: uuid.UUID | None
+    file_name: str
+    mime_type: str
+    file_path: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class UploadAttachmentsResponse(BaseModel):
+    attachments: list[AttachmentOut]
+
+
+class AttachmentPreviewResponse(BaseModel):
+    attachment_id: uuid.UUID
+    file_name: str
+    mime_type: str
+    preview_type: str
+    columns: list[str] = Field(default_factory=list)
+    rows: list[list[str]] = Field(default_factory=list)
+    content: str | None = None
+    truncated: bool = False
 
 
 # Fix forward reference

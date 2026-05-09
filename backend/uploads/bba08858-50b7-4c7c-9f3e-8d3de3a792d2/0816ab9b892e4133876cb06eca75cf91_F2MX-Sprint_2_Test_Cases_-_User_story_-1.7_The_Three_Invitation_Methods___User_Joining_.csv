@@ -1,0 +1,342 @@
+Test Case ID,Functionality,Test Case type,Test Objective,Test Executions Steps,Expected Result,DevAssignee,DevStatus,Dev Comments
+TC_001,Invitation Methods & user Joining,Positive,Verify invite options visible after league creation,"1. Login as User(commissioner)
+2. Click on Leagues Module  
+3. Click on + Create button at top right corner
+4. Navigate to Private League Creation Screen.
+5. Enter all required details
+6. Click Create League 
+7. Navigate to success screen","- Application should display Direct Link, QR Code, and In-App Invite options",Shankar,,
+TC_002,Invitation Methods & user Joining,Positive,Verify Link / QR tab ,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab","- Application should highlight Link / QR tab in blue
+
+- Application should display Direct Link and QR Code sections for generated League",Shankar,,
+TC_003,Invitation Methods & user Joining,Positive,Verify direct link generation,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab
+5. Verify direct link generation","- Application should generate unique invite URL linked to created League ID
+
+- Application should display valid shareable link in Direct Link field
+
+- Application should display copy icon and share link button",Shankar,,
+TC_004,Invitation Methods & user Joining,Positive,Verify copy link,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab
+5. Click copy icon beside link","- Application should copy invite link 
+
+- Application should display message ""Copied to clipboard""",Shankar,,
+TC_005,Invitation Methods & user Joining,Positive,Verify share link,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab
+5. Click Share Link button","- Application should open native share options (WhatsApp, Email, etc.)
+
+- Application should allow sharing same link with multiple users (one-to-many)",Shankar,,
+TC_006,Invitation Methods & user Joining,Positive,Verify Open the shared direct link on mobile device when user logged in,"Precondition: 
+1. Commissioner created private league
+2. Commissioner copied and shared invite link
+3. User is logged in mobile app
+
+Steps:
+1. Open invite link",- Application should open the app directly and navigate user to the League invites screen,Shankar,,
+TC_007,Invitation Methods & user Joining,Positive,Verify Open the shared direct link code on mobile device when user not logged in,"Precondition: 
+1. Commissioner created private league
+2. Commissioner copied and shared invite link
+3. User is not logged in mobile app
+
+Steps:
+1. Open link 
+2. Navigate to login screen
+3. Login with valid credentials","- Application should display Login screen when link is opened
+
+- Application should navigate to League Invites screen after successful login",Shankar,,
+TC_008,Invitation Methods & user Joining,Negative,Verify Open the shared direct link on mobile device when user not logged in,"Precondition: 
+1. Commissioner created private league
+2. Commissioner copied and shared invite link
+3. User is not logged in mobile app
+
+Steps:
+1. Open the shared direct link (URL)/QR on mobile device
+2. Navigate to Login screen
+3. Enter invalid login credentials
+4. Click Login","- Application should display Login screen when link is opened
+
+- Application should display error message for invalid credentials
+
+- Application should not allow user to login",Shankar,,
+TC_009,Invitation Methods & user Joining,Positive,Verify Open the shared direct link on mobile device when app not installed,"Precondition: 
+1. Commissioner created a private league
+2. Commissioner copied and shared the invite link
+3. App is not installed on device
+
+Steps:
+1. Open the shared direct link(URL)/QR on mobile device
+2. Verify the application behavior","- Application should redirect user to Play Store/App Store
+
+- Application should display app install page",Shankar,,
+TC_010,Invitation Methods & user Joining,Positive,Verify flow after installing app ,"Precondition: 
+1. Commissioner created a private league
+2. Commissioner copied and shared the invite link
+
+
+Steps:
+1. Open the shared direct link(URL)/QR on mobile device
+2. Navigate to Play Store / App Store
+3. Install the app
+4. Open the app
+5. Navigate to login screen
+6. Enter valid credentials
+7. Click on login","- Application should open successfully after installation
+
+- Application should display Login screen when link is opened
+
+- Application should navigate to League Invites screen after successful login
+
+",Shankar,,
+TC_011,Invitation Methods & user Joining,Positive,Verify same link works after install,"Precondition: 
+1. Commissioner created a private league
+2. Commissioner copied and shared the invite link
+3. User is logged In
+
+Steps:
+1. Install app 
+2. Open link again
+",- Application should navigate to League Invite screen after successfully login,Shankar,,
+TC_012,Invitation Methods & user Joining,Negative,Verify invalid/expired link,"Precondition: 
+1. Commissioner created private league
+2. Commissioner copied and shared invite link
+3. User logged in
+Steps:
+1. Open invalid/expired invite link","- Application should not allow user to navigate to app
+
+- Application should display invalid/expired link message ",Shankar,,
+TC_013,Invitation Methods & user Joining,Negative,Verify invite link when app installed but user not registered,"Precondition: 
+1. Commissioner created private league
+2. Commissioner copied and shared invite link
+3. User is logged in mobile app
+
+Steps:
+1. Open the shared direct link(URL)/QR on mobile device",- Application should open the app and navigate user to the create account screen,Shankar,,
+TC_014,Invitation Methods & user Joining,Positive,Verify QR code visibility,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab
+5. Click Share Link button
+6. Navigate to QR Code section","- Application should display QR Code generated for same League ID
+
+- Application should display QR represents same invite link
+
+- Application should display download option and share option",Shankar,,
+TC_015,Invitation Methods & user Joining,Positive,Verify QR download,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab
+5. Click Share Link button
+6. Navigate to QR Code section
+7. Click on download","- Application should download QR Code image successfully with format PNG or JPG
+",Shankar,,
+TC_016,Invitation Methods & user Joining,Positive,Verify QR share,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Link / QR tab
+5. Click Share Link button
+6. Navigate to QR Code section
+7. Click Share button under QR","- Application should open native share options for QR Code
+
+- Application should allow sharing QR with multiple users",Shankar,,
+TC_017,Invitation Methods & user Joining,Positive,Verify QR Code contains correct invite link,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to Link/QR section
+4. Copy the Direct Link
+5. Scan the QR Code using a mobile device
+6. Observe the opened link","- Application should open the same invite link as the Direct Link
+
+- QR Code link and Direct Link should be the same",Shankar,,
+TC_018,Invitation Methods & user Joining,Positive,Verify QR scan when user is logged in,"Precondition: 
+1. Commissioner created private league
+2. Commissioner shared QR code
+3. User is logged in mobile app
+
+Steps:
+1. Open scan QR code",- Application should open the app directly and navigate user to the League invites screen,Shankar,,
+TC_019,Invitation Methods & user Joining,Positive,Verify QR scan when user not logged in,"Precondition: 
+1. Commissioner created private league
+2. Commissioner shared QR code
+3. User is not logged in mobile app
+
+Steps:
+1. Open scan QR code
+2. Navigate to login screen
+3. Login with valid credentials","- Application should display Login screen when link is opened
+
+- Application should navigate to League Invites screen after successful login",Shankar,,
+TC_020,Invitation Methods & user Joining,Positive,Verify QR scan when app not installed,"Precondition: 
+1. Commissioner created a private league
+2. Commissioner shared QR code
+3. App is not installed on device
+
+Steps:
+1. Open scan QR code
+2. Verify the application behavior","- Application should redirect user to Play Store/App Store
+
+- Application should display app install page",Shankar,,
+TC_021,Invitation Methods & user Joining,Positive,Verify Invite Users tab selection,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab","- Application should highlight Invite Users tab in blue
+
+- Application should display list of users with Invite buttons",Shankar,,
+TC_022,Invitation Methods & user Joining,Positive,Verify users list,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab","- Application should display list of users
+
+- Application should display user name, avatar, and role (Rookie, Pro, etc.)
+
+- Application should display Invite button for each user",Shankar,,
+TC_023,Invitation Methods & user Joining,Negative,Verify admin users list is displaying in invite users method,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab",- Application should not display admin users ,Shankar,,
+TC_024,Invitation Methods & user Joining,Positive,Verify search users,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab
+5. Enter name in search field",- Application should display matching users ,Shankar,,
+TC_025,Invitation Methods & user Joining,Negative,Verify invalid search users,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab
+5. Enter invalid name in search field",- Application should display no users or empty state,Shankar,,
+TC_026,Invitation Methods & user Joining,Positive,verify commissioner user is displaying in users list,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab
+5. Enter commissioner name in search field",- Application should display name with member state with text already member,Shankar,,
+TC_027,Invitation Methods & user Joining,Positive,Verify click on invite ,"1. Login as User(commissioner)
+2. Create a private league
+3. Navigate to success screen
+4. Click on Invite Users tab
+5. Click Invite button for a user","- Application should send invite to selected user
+
+- Application should update button state to Sent with tick mark",Shankar,,
+TC_028,Invitation Methods & user Joining,Positive,Verify League Invites screen,"Preconditions:
+1. Commissioner created a private league
+2. Invitation sent by Commissioner
+
+Steps:
+1. Login as invited user
+2. Click on League invites ","- Application should display list of all invitations in league invites screen
+
+- Application should display Accept and Decline options for each league card",Strike off in brd,,
+TC_029,Invitation Methods & user Joining,Positive,Verify click on Accept (Applicable for all invitation methods),"Preconditions:
+1. Commissioner created a private league
+2. Invitation sent by Commissioner
+
+Steps:
+1. Login as invited user
+2. Click on league invites
+3. Navigate to league invites details screen
+4. Click on Accept for a particular league","
+- Application should send approval request to league created commissioner",Shankar,,
+TC_030,Invitation Methods & user Joining,Positive,Verify click on Decline (Applicable for all invitation methods),"Preconditions:
+1. Commissioner created a private league
+2. Invitation sent by Commissioner
+
+Steps:
+1. Login as user
+2. Click on league invites
+3. Navigate to league invites details screen
+4. Click on Decline for a particular league",- Application should remove invitation from list,Shankar,,
+TC_031,Invitation Methods & user Joining,Positive,Verify commissioner join requests list,"1. Login as League commissioner(user)
+2. Click Leagues
+3. Click Join Requests -> My Leagues","- Application should display list of created leagues pending requests
+
+- Application should display league name
+
+- Application should display count of pending requests (e.g., 8 pending requests)
+
+- Application should display navigation arrow (>) for each league",Shankar,,
+TC_032,Invitation Methods & user Joining,Positive,Verify click on any league to view request details,"1. Login as League commissioner(user)
+2. Click Leagues
+3. Click Join Requests -> My Leagues
+4. Click on any league to view request details","- Application should display list of users who requested to join
+
+- Application should display user avatar, username, role (Pro/Amateur/etc.), and XP
+
+- Application should display Approve button with Tick mark for each user
+
+- Application should display Deny button with cross mark for each user
+
+- Application should allow commissioner to approve or deny each request individually",Shankar,,
+TC_033,Invitation Methods & user Joining,Positive,Verify click on Accept ,"1. Login as League commissioner(user)
+2. Click Leagues
+3. Click Join Requests -> My Leagues
+4. Click on any league to view request details
+5. Click on Accept for a user","- Application should add user to league
+
+- Application should update state to Approved with tick mark",Shankar,,
+TC_034,Invitation Methods & user Joining,Positive,Verify click on Deny,"1. Login as League commissioner(user)
+2. Click Leagues
+3. Click Join Requests -> My Leagues
+4. Click on any league to view request details
+5. Click on Deny for a user","- Application should update state to Denied with cross mark
+
+- Application should not add the user to the league ",Shankar,,
+TC_035,Invitation Methods & user Joining,Negative,Verify validation when league full,"1. Login as League commissioner(user)
+2. Click Leagues
+3. Click Join Requests -> My Leagues
+4. Click on any league to view request details
+5. Click on Accept for a user when league full",- Application should display “This League is full”,Shankar,,
+TC_036,Invitation Methods & user Joining,Negative,Verify validation when league started,"1. Login as League commissioner(user)
+2. Click Leagues
+3. Click Join Requests -> My Leagues
+4. Click on any league to view request details
+5. Click on Accept for a user when league already started","- Application should display validation as ""League already started",Shankar,,
+TC_037,Invitation Methods & user Joining,Negative,Verify validation when user already joined the league ,"Preconditions:
+1. User is already a member of the league
+
+Steps:
+1. Open link again after accepted invitation","- Application should display validation message like ""You are already a member of this league""",Shankar,,
+TC_038,Invitation Methods & user Joining,Negative,Verify pending request,"Preconditions:
+1. User already accepted invitation
+Steps:
+1. Open the shared invite link (URL) / scan QR code after already joining the league",- Application should show “Request already pending”,Shankar,,
+TC_039,Invitation Methods & user Joining,Positive,Verify navigation after join,"Preconditions:
+1. User has successfully joined the league
+
+Steps:
+1. Login as user
+2. Click on Leagues module
+3. Verify joined league","- Application should redirect to League Dashboard
+
+- Application should display joined league",Shankar,,
+TC_040,Invitation Methods & user Joining,Positive,Verify league details after join,"Preconditions:
+1. User has successfully joined the league
+
+Steps:
+1. Login as user
+2. Click on Leagues module
+","- Application should add user to league participant list
+
+- Application should assign team to the user
+
+- Application should increase team/participant count accordingly
+
+- Application should allocate Starting Currency to the user
+",Shankar,,
+TC_041,Invitation Methods & user Joining,Negative,Verify duplicate invitations ,"Preconditions:
+1. User already invited
+
+Steps:
+1. Login as Commissioner
+2. Send invite again to same user","- Application should not create duplicate invitation
+
+- Application should display only one invitation for the user",Shankar,,
+TC_042,,Positive,Verify the invitation which user already joined,"1. Login as User
+2. Click on Leagues module
+3. Click on the Invitations category
+4. Join an invite and verify the invite in the listing.",- Application should remove the Invitation automatically from the Invitations list once user joined the league.,Shankar,,

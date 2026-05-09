@@ -1,16 +1,27 @@
 import { FormEvent } from "react";
 
+import { AttachmentUploader } from "./AttachmentUploader";
+import type { PendingAttachment } from "../types/chat";
+
 interface ChatComposerProps {
   value: string;
   disabled: boolean;
+  canSend: boolean;
+  attachments: PendingAttachment[];
   onChange: (value: string) => void;
+  onFilesAdded: (files: File[]) => void;
+  onRemoveAttachment: (localId: string) => void;
   onSubmit: () => void;
 }
 
 export function ChatComposer({
   value,
   disabled,
+  canSend,
+  attachments,
   onChange,
+  onFilesAdded,
+  onRemoveAttachment,
   onSubmit,
 }: ChatComposerProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -23,6 +34,12 @@ export function ChatComposer({
       onSubmit={handleSubmit}
       className="border-t border-black/10 bg-white/70 p-4 backdrop-blur sm:p-5"
     >
+      <AttachmentUploader
+        disabled={disabled}
+        attachments={attachments}
+        onFilesAdded={onFilesAdded}
+        onRemoveAttachment={onRemoveAttachment}
+      />
       <div className="flex gap-3">
         <input
           type="text"
@@ -34,7 +51,7 @@ export function ChatComposer({
         />
         <button
           type="submit"
-          disabled={disabled || !value.trim()}
+          disabled={disabled || !canSend}
           className="rounded-xl bg-(--clay) px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
         >
           Send

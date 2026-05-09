@@ -5,8 +5,13 @@ import type { ChatMessage } from "../types/chat";
 
 describe("ChatMessageList", () => {
   const messages: ChatMessage[] = [
-    { id: "1", role: "user", content: "Hello there" },
-    { id: "2", role: "assistant", content: "Hi! How can I help?" },
+    { id: "1", role: "user", content: "Hello there", attachments: [] },
+    {
+      id: "2",
+      role: "assistant",
+      content: "Hi! How can I help?",
+      attachments: [],
+    },
   ];
 
   it("renders all messages", () => {
@@ -28,7 +33,9 @@ describe("ChatMessageList", () => {
   it("renders user messages as plain text", () => {
     render(
       <ChatMessageList
-        messages={[{ id: "1", role: "user", content: "Plain text" }]}
+        messages={[
+          { id: "1", role: "user", content: "Plain text", attachments: [] },
+        ]}
         loading={false}
       />,
     );
@@ -38,7 +45,14 @@ describe("ChatMessageList", () => {
   it("renders assistant messages with markdown", () => {
     render(
       <ChatMessageList
-        messages={[{ id: "1", role: "assistant", content: "**Bold text**" }]}
+        messages={[
+          {
+            id: "1",
+            role: "assistant",
+            content: "**Bold text**",
+            attachments: [],
+          },
+        ]}
         loading={false}
       />,
     );

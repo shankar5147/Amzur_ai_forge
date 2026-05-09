@@ -1,4 +1,6 @@
 import type {
+  Attachment,
+  AttachmentPreview,
   AuthResponse,
   ChatHistoryResponse,
   ChatRequest,
@@ -10,10 +12,15 @@ import type {
   ThreadCreate,
   ThreadListResponse,
   ThreadUpdate,
+  UploadAttachmentsResponse,
 } from "../types/chat";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+
+export function getAttachmentUrl(filePath: string): string {
+  return `${API_BASE_URL}/uploads/${filePath}`;
+}
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem("access_token");
@@ -129,4 +136,94 @@ export async function getChatHistory(
     },
   });
   return handleResponse<ChatHistoryResponse>(response);
+}
+
+export async function listThreadAttachments(
+  threadId: string,
+): Promise<UploadAttachmentsResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/attachments/thread/${threadId}`,
+    {
+      method: "GET",
+      headers: {
+        ...getAuthHeaders(),
+      },
+    },
+  );
+  return handleResponse<UploadAttachmentsResponse>(response);
+}
+
+export async function getAttachmentPreview(
+  attachmentId: string,
+): Promise<AttachmentPreview> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/attachments/${attachmentId}/preview`,
+    {
+      method: "GET",
+      headers: {
+        ...getAuthHeaders(),
+      },
+    },
+  );
+  return handleResponse<AttachmentPreview>(response);
+}
+
+export async function uploadAttachment(
+  threadId: string,
+  file: File,
+  onProgress?: (value: number) => void,
+): Promise<Attachment> {
+  const token = localStorage.getItem("access_token");
+
+  return new Promise<Attachment>((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("thread_id", threadId);
+    formData.append("files", file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API_BASE_URL}/api/attachments/upload`);
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error("Network error during upload."));
+    };
+
+    xhr.onload = () => {
+      let parsed: UploadAttachmentsResponse | { detail?: string } = {};
+      try {
+        parsed = JSON.parse(xhr.responseText || "{}");
+      } catch {
+        parsed = {};
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const payload = parsed as UploadAttachmentsResponse;
+        const attachment = payload.attachments[0];
+        if (!attachment) {
+          reject(
+            new Error(
+              "Upload completed but no attachment metadata was returned.",
+            ),
+          );
+          return;
+        }
+        resolve(attachment);
+        return;
+      }
+
+      reject(
+        new Error((parsed as { detail?: string }).detail ?? "Upload failed."),
+      );
+    };
+
+    xhr.send(formData);
+  });
 }

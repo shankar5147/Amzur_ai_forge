@@ -49,5 +49,10 @@ class Settings:
         )
     )
 
+    # Attachments
+    upload_dir: str = os.getenv("UPLOAD_DIR", str(_backend_dir / "uploads"))
+    max_upload_bytes: int = int(os.getenv("MAX_UPLOAD_BYTES", str(15 * 1024 * 1024)))
+    max_attachment_context_items: int = int(os.getenv("MAX_ATTACHMENT_CONTEXT_ITEMS", "5"))
+
 
 settings = Settings()

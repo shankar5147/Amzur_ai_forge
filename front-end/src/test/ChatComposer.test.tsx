@@ -6,7 +6,11 @@ describe("ChatComposer", () => {
   const defaultProps = {
     value: "",
     disabled: false,
+    canSend: false,
+    attachments: [],
     onChange: vi.fn(),
+    onFilesAdded: vi.fn(),
+    onRemoveAttachment: vi.fn(),
     onSubmit: vi.fn(),
   };
 
@@ -28,7 +32,14 @@ describe("ChatComposer", () => {
 
   it("calls onSubmit when form is submitted", () => {
     const onSubmit = vi.fn();
-    render(<ChatComposer {...defaultProps} value="Hi" onSubmit={onSubmit} />);
+    render(
+      <ChatComposer
+        {...defaultProps}
+        value="Hi"
+        canSend={true}
+        onSubmit={onSubmit}
+      />,
+    );
 
     fireEvent.submit(
       screen.getByRole("button", { name: /send/i }).closest("form")!,
@@ -52,7 +63,7 @@ describe("ChatComposer", () => {
   });
 
   it("enables send button when value is non-empty and not disabled", () => {
-    render(<ChatComposer {...defaultProps} value="message" />);
+    render(<ChatComposer {...defaultProps} value="message" canSend={true} />);
     expect(screen.getByRole("button", { name: /send/i })).not.toBeDisabled();
   });
 });

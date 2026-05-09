@@ -192,7 +192,15 @@ describe("chatApi service", () => {
       vi.stubGlobal(
         "fetch",
         mockFetch(200, {
-          messages: [{ id: "m1", role: "user", content: "Hi", created_at: "" }],
+          messages: [
+            {
+              id: "m1",
+              role: "user",
+              content: "Hi",
+              created_at: "",
+              attachments: [],
+            },
+          ],
         }),
       );
 

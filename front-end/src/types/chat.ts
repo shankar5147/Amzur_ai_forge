@@ -1,15 +1,27 @@
 export type MessageRole = "user" | "assistant";
 
+export interface Attachment {
+  id: string;
+  thread_id: string;
+  message_id: string | null;
+  file_name: string;
+  mime_type: string;
+  file_path: string;
+  created_at: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
   content: string;
   created_at?: string;
+  attachments?: Attachment[];
 }
 
 export interface ChatRequest {
-  message: string;
+  message?: string | null;
   thread_id?: string | null;
+  attachment_ids?: string[];
 }
 
 export interface ChatResponse {
@@ -22,10 +34,37 @@ export interface MessageOut {
   role: MessageRole;
   content: string;
   created_at: string;
+  attachments: Attachment[];
 }
 
 export interface ChatHistoryResponse {
   messages: MessageOut[];
+}
+
+export interface UploadAttachmentsResponse {
+  attachments: Attachment[];
+}
+
+export interface AttachmentPreview {
+  attachment_id: string;
+  file_name: string;
+  mime_type: string;
+  preview_type: "table" | "document" | "text" | "unsupported";
+  columns: string[];
+  rows: string[][];
+  content: string | null;
+  truncated: boolean;
+}
+
+export interface PendingAttachment {
+  local_id: string;
+  file_name: string;
+  mime_type: string;
+  progress: number;
+  status: "uploading" | "uploaded" | "error";
+  error?: string;
+  preview_url?: string;
+  attachment_id?: string;
 }
 
 // Thread types

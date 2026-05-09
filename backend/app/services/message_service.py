@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.db_models import Message
 
@@ -22,6 +23,7 @@ class MessageService:
     async def get_history(self, thread_id: uuid.UUID) -> list[Message]:
         stmt = (
             select(Message)
+            .options(selectinload(Message.attachments))
             .where(Message.thread_id == thread_id)
             .order_by(Message.created_at.asc())
         )
@@ -33,6 +35,7 @@ class MessageService:
         # Subquery: get last N messages ordered desc, then re-order asc
         stmt = (
             select(Message)
+            .options(selectinload(Message.attachments))
             .where(Message.thread_id == thread_id)
             .order_by(Message.created_at.desc())
             .limit(limit)

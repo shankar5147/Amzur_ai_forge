@@ -57,16 +57,55 @@ class ChatService:
                 history.append(AIMessage(content=msg.content))
         return history
 
-    async def generate_response(self, message: str, history: list[Message] | None = None) -> str:
+    async def generate_response(
+        self,
+        message: str,
+        history: list[Message] | None = None,
+        attachment_contexts: list[str] | None = None,
+    ) -> str:
         try:
+            prompt_message = message.strip() or "Analyze the attached files and help the user."
+            if attachment_contexts:
+                joined = "\n\n".join(attachment_contexts)
+                prompt_message = (
+                    f"{prompt_message}\n\n"
+                    "Attachment context extracted from user uploads:\n"
+                    f"{joined}"
+                )
+
             formatted_history = self.format_history(history) if history else []
             response: str = await self._chain.ainvoke({
-                "message": message,
+                "message": prompt_message,
                 "history": formatted_history,
             })
             return response
         except Exception as exc:
             raise LLMServiceError("Failed to get a response from LLM.") from exc
+
+    async def analyze_image(self, image_url: str, filename: str) -> str:
+        try:
+            response = await self._llm.ainvoke(
+                [
+                    HumanMessage(
+                        content=[
+                            {
+                                "type": "text",
+                                "text": (
+                                    "Analyze this uploaded image and summarize important content for a chat assistant. "
+                                    f"Filename: {filename}. Mention salient objects/text and possible user intent."
+                                ),
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": image_url},
+                            },
+                        ]
+                    )
+                ]
+            )
+            return str(response.content)
+        except Exception as exc:
+            raise LLMServiceError("Failed to analyze uploaded image.") from exc
 
     async def generate_thread_name(self, first_message: str) -> str:
         try:

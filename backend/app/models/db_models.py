@@ -43,6 +43,9 @@ class Thread(Base):
 
     user: Mapped[User] = relationship("User", back_populates="threads")
     messages: Mapped[list[Message]] = relationship("Message", back_populates="thread", lazy="selectin", cascade="all, delete-orphan")
+    attachments: Mapped[list[Attachment]] = relationship(
+        "Attachment", back_populates="thread", lazy="selectin", cascade="all, delete-orphan"
+    )
 
 
 class Message(Base):
@@ -58,3 +61,19 @@ class Message(Base):
     )
 
     thread: Mapped[Thread] = relationship("Thread", back_populates="messages")
+    attachments: Mapped[list[Attachment]] = relationship("Attachment", back_populates="message", lazy="selectin")
+
+
+class Attachment(Base):
+    __tablename__ = "attachments"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    thread_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("threads.id", ondelete="CASCADE"), nullable=False, index=True)
+    message_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("messages.id", ondelete="SET NULL"), nullable=True, index=True)
+    file_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    mime_type: Mapped[str] = mapped_column(String(255), nullable=False)
+    file_path: Mapped[str] = mapped_column(String(1024), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    thread: Mapped[Thread] = relationship("Thread", back_populates="attachments")
+    message: Mapped[Message | None] = relationship("Message", back_populates="attachments")
