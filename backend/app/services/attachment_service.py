@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.db_models import Attachment, Message, Thread
+from app.services.attachment_rag_service import AttachmentRAGService
 from app.services.file_storage_service import FileStorageService
 
 
@@ -40,6 +41,13 @@ class AttachmentService:
         await self._db.commit()
         for attachment in saved:
             await self._db.refresh(attachment)
+
+        # Best-effort indexing for retrieval; upload should still succeed if indexing fails.
+        try:
+            rag_service = AttachmentRAGService(self._db, storage=self._storage)
+            await rag_service.retrieve_context_blocks(saved, query="")
+        except Exception:
+            pass
 
         return saved
 

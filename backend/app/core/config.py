@@ -16,6 +16,12 @@ def _parse_origins(value: str) -> tuple[str, ...]:
     return tuple(origins)
 
 
+def _parse_bool(value: str, default: bool = False) -> bool:
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 @dataclass(frozen=True)
 class Settings:
     # LiteLLM proxy settings
@@ -51,8 +57,19 @@ class Settings:
 
     # Attachments
     upload_dir: str = os.getenv("UPLOAD_DIR", str(_backend_dir / "uploads"))
-    max_upload_bytes: int = int(os.getenv("MAX_UPLOAD_BYTES", str(15 * 1024 * 1024)))
+    max_upload_bytes: int = int(os.getenv("MAX_UPLOAD_BYTES", str(15 * 1024 * 1024)))  # Per-file limit
+    max_total_upload_bytes: int = int(os.getenv("MAX_TOTAL_UPLOAD_BYTES", str(100 * 1024 * 1024)))  # Total per request
+    max_files_per_upload: int = int(os.getenv("MAX_FILES_PER_UPLOAD", "20"))
     max_attachment_context_items: int = int(os.getenv("MAX_ATTACHMENT_CONTEXT_ITEMS", "5"))
+
+    # RAG + embeddings
+    rag_enabled: bool = _parse_bool(os.getenv("RAG_ENABLED", "true"), default=True)
+    rag_embedding_model: str = os.getenv("RAG_EMBEDDING_MODEL", "text-embedding-3-small")
+    rag_chunk_size: int = int(os.getenv("RAG_CHUNK_SIZE", "1200"))
+    rag_chunk_overlap: int = int(os.getenv("RAG_CHUNK_OVERLAP", "200"))
+    rag_top_k: int = int(os.getenv("RAG_TOP_K", "6"))
+    rag_max_chunks_per_attachment: int = int(os.getenv("RAG_MAX_CHUNKS_PER_ATTACHMENT", "200"))
+    chroma_db_path: str = os.getenv("CHROMA_DB_PATH", str(_backend_dir / ".chroma_data"))
 
     # AI image generation
     imagen_model: str = os.getenv("IMAGEN_MODEL", "gemini/imagen-4.0-fast-generate-001")

@@ -14,6 +14,7 @@ from app.services.attachment_service import AttachmentService
 from app.services.file_storage_service import (
     FileSizeLimitExceededError,
     FileStorageError,
+    FileStorageService,
     UnsafeFileError,
     UnsupportedFileTypeError,
 )
@@ -29,8 +30,13 @@ async def upload_attachments(
     db: AsyncSession = Depends(get_db),
 ) -> UploadAttachmentsResponse:
     service = AttachmentService(db)
+    storage = FileStorageService()
 
     try:
+        # Validate batch before processing
+        storage.validate_batch_upload(files)
+        await storage.validate_batch_sizes(files)
+        
         attachments = await service.upload_files_for_thread(
             thread_id=thread_id,
             user_id=current_user.id,

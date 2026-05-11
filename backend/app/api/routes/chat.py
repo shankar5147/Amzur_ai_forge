@@ -1,4 +1,5 @@
 import uuid
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,12 +10,14 @@ from app.core.security import get_current_user
 from app.models.db_models import User
 from app.models.schemas import ChatHistoryResponse, ChatRequest, ChatResponse, MessageOut
 from app.services.attachment_ai_service import AttachmentAIService
+from app.services.attachment_rag_service import AttachmentRAGService
 from app.services.attachment_service import AttachmentService
 from app.services.chat_service import ChatService, LLMServiceError
 from app.services.message_service import MessageService
 from app.services.thread_service import ThreadService
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+logger = logging.getLogger("uvicorn.error")
 
 
 @router.post("", response_model=ChatResponse)
@@ -23,6 +26,7 @@ async def chat(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ChatResponse:
+    logger.info("[CHAT] Received message: %s", (payload.message or "")[:120])
     thread_service = ThreadService(db)
     attachment_service = AttachmentService(db)
 
@@ -33,6 +37,7 @@ async def chat(
         thread = await thread_service.get_thread(payload.thread_id, current_user.id)
         if not thread:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Thread not found.")
+        logger.info("[CHAT] Using existing conversation: %s", thread.id)
 
     # Fetch last 5 messages for conversational memory
     msg_service = MessageService(db)
@@ -56,8 +61,34 @@ async def chat(
         service = ChatService()
         attachment_contexts: list[str] = []
         if attachments:
+            logger.info(
+                "[CHAT] RAG enabled: %s, attachments: %s",
+                settings.rag_enabled,
+                len(attachments),
+            )
+            logger.info(
+                "[CHAT] Attempting RAG retrieval for query: %s",
+                (payload.message or "")[:120],
+            )
+            rag_service = AttachmentRAGService(db)
+            rag_contexts = await rag_service.retrieve_context_blocks(
+                attachments=attachments,
+                query=payload.message or "",
+            )
+
+            # Keep existing behavior for multimodal files and backward compatibility.
             ai_service = AttachmentAIService()
-            attachment_contexts = await ai_service.build_context_blocks(attachments, service)
+            ai_contexts = await ai_service.build_context_blocks(attachments, service)
+
+            if rag_contexts:
+                logger.info("[CHAT] RAG retrieved %s chunks", len(rag_contexts))
+                # Prefer relevant chunks and append non-duplicate fallback context.
+                attachment_contexts = rag_contexts + [
+                    block for block in ai_contexts if block not in rag_contexts
+                ]
+            else:
+                logger.info("[CHAT] RAG returned 0 chunks, using fallback attachment context")
+                attachment_contexts = ai_contexts
 
         response = await service.generate_response(
             payload.message or "",

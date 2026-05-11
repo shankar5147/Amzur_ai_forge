@@ -96,10 +96,68 @@ class FileStorageService:
         self._root = Path(settings.upload_dir)
         self._root.mkdir(parents=True, exist_ok=True)
         self._max_upload_bytes = settings.max_upload_bytes
+        self._max_total_upload_bytes = settings.max_total_upload_bytes
+        self._max_files_per_upload = settings.max_files_per_upload
 
     @property
     def root(self) -> Path:
         return self._root
+
+    def validate_batch_upload(self, files: list[UploadFile]) -> None:
+        """Validate a batch of files before uploading.
+        
+        Raises:
+            FileStorageError: If file count exceeds limit
+            FileSizeLimitExceededError: If total size exceeds limit
+        """
+        if not files:
+            raise FileStorageError("No files provided for upload.")
+        
+        if len(files) > self._max_files_per_upload:
+            raise FileStorageError(
+                f"Cannot upload more than {self._max_files_per_upload} files at once. "
+                f"You tried to upload {len(files)} files."
+            )
+        
+        # Check for duplicate filenames (common issue with batch uploads)
+        filenames = [f.filename or "upload" for f in files]
+        if len(filenames) != len(set(filenames)):
+            raise FileStorageError(
+                "Multiple files with the same name detected. Please rename files to be unique."
+            )
+
+    async def validate_batch_sizes(self, files: list[UploadFile]) -> dict[str, int]:
+        """Pre-check total upload size without reading all file contents.
+        
+        Returns:
+            Dictionary mapping filename to file size
+        """
+        total_size = 0
+        file_sizes = {}
+        
+        for upload in files:
+            # Get file size from seek position
+            if hasattr(upload, "file") and hasattr(upload.file, "seek"):
+                try:
+                    current_pos = upload.file.tell()
+                    await anyio.to_thread.run_sync(upload.file.seek, 0, 2)
+                    size = upload.file.tell()
+                    await anyio.to_thread.run_sync(upload.file.seek, current_pos)
+                    file_sizes[upload.filename or "upload"] = size
+                    total_size += size
+                except Exception:
+                    # If we can't get file size, allow it to be checked during upload
+                    pass
+            
+        if total_size > self._max_total_upload_bytes:
+            total_mb = total_size / (1024 * 1024)
+            max_mb = self._max_total_upload_bytes / (1024 * 1024)
+            raise FileSizeLimitExceededError(
+                f"Total upload size ({total_mb:.1f} MB) exceeds maximum allowed ({max_mb:.1f} MB). "
+                f"Please upload fewer files or smaller files."
+            )
+        
+        return file_sizes
 
     async def save_upload(self, thread_id: uuid.UUID, upload: UploadFile) -> StoredFile:
         raw_name = upload.filename or "upload"

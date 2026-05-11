@@ -82,11 +82,13 @@ export interface PendingAttachment {
   local_id: string;
   file_name: string;
   mime_type: string;
+  file_size: number; // File size in bytes
   progress: number;
   status: "uploading" | "uploaded" | "error";
   error?: string;
   preview_url?: string;
   attachment_id?: string;
+  local_preview?: string; // Local preview data URL for images/videos
 }
 
 // Thread types

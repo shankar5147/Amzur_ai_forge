@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -83,6 +83,30 @@ class Attachment(Base):
 
     thread: Mapped[Thread] = relationship("Thread", back_populates="attachments")
     message: Mapped[Message | None] = relationship("Message", back_populates="attachments")
+    chunks: Mapped[list[AttachmentChunk]] = relationship(
+        "AttachmentChunk",
+        back_populates="attachment",
+        lazy="selectin",
+        cascade="all, delete-orphan",
+    )
+
+
+class AttachmentChunk(Base):
+    __tablename__ = "attachment_chunks"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    attachment_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("attachments.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    content_chunk: Mapped[str] = mapped_column(Text, nullable=False)
+    embedding_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    attachment: Mapped[Attachment] = relationship("Attachment", back_populates="chunks")
 
 
 class GeneratedImage(Base):

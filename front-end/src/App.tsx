@@ -14,6 +14,7 @@ import {
   getThreads,
   sendMessage,
   uploadAttachment,
+  uploadAttachmentsBatch,
   updateThread,
 } from "./services/chatApi";
 import type { ChatMessage, PendingAttachment, Thread } from "./types/chat";
@@ -323,6 +324,8 @@ function ChatPage() {
 
   const handleFilesAdded = useCallback(
     async (files: File[]) => {
+      if (!files.length) return;
+
       setError(null);
       let threadIdForUpload: string;
 
@@ -337,53 +340,72 @@ function ChatPage() {
         return;
       }
 
-      for (const file of files) {
-        const localId = crypto.randomUUID();
-        const preview =
+      // Validate total upload size on frontend
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100MB - should match backend
+      if (totalSize > MAX_TOTAL_SIZE) {
+        const sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+        const maxMB = (MAX_TOTAL_SIZE / (1024 * 1024)).toFixed(1);
+        setError(
+          `Total upload size (${sizeMB} MB) exceeds maximum (${maxMB} MB). Please upload fewer or smaller files.`,
+        );
+        return;
+      }
+
+      // Create pending attachment entries for all files
+      const localIds = files.map(() => crypto.randomUUID());
+      const pendingItems: PendingAttachment[] = files.map((file, index) => ({
+        local_id: localIds[index],
+        file_name: file.name,
+        mime_type: file.type,
+        file_size: file.size,
+        progress: 1,
+        status: "uploading",
+        preview_url:
           file.type.startsWith("image/") || file.type.startsWith("video/")
             ? URL.createObjectURL(file)
-            : undefined;
+            : undefined,
+      }));
 
-        setPendingAttachments((prev) => [
-          ...prev,
-          {
-            local_id: localId,
-            file_name: file.name,
-            mime_type: file.type,
-            progress: 1,
-            status: "uploading",
-            preview_url: preview,
+      setPendingAttachments((prev) => [...prev, ...pendingItems]);
+
+      try {
+        const uploaded = await uploadAttachmentsBatch(
+          threadIdForUpload,
+          files,
+          (fileIndex, progress) => {
+            setPendingAttachments((prev) =>
+              prev.map((item) =>
+                item.local_id === localIds[fileIndex]
+                  ? { ...item, progress }
+                  : item,
+              ),
+            );
           },
-        ]);
+        );
 
-        try {
-          const uploaded = await uploadAttachment(
-            threadIdForUpload,
-            file,
-            (progress) => {
-              setPendingAttachments((prev) =>
-                prev.map((item) =>
-                  item.local_id === localId ? { ...item, progress } : item,
-                ),
-              );
-            },
-          );
-
+        // Mark all files as successfully uploaded
+        uploaded.forEach((attachment, index) => {
           setPendingAttachments((prev) =>
             prev.map((item) =>
-              item.local_id === localId
+              item.local_id === localIds[index]
                 ? {
                     ...item,
                     status: "uploaded",
                     progress: 100,
-                    mime_type: uploaded.mime_type,
-                    attachment_id: uploaded.id,
+                    mime_type: attachment.mime_type,
+                    attachment_id: attachment.id,
                   }
                 : item,
             ),
           );
-        } catch (err) {
-          const text = err instanceof Error ? err.message : "Upload failed.";
+        });
+      } catch (err) {
+        const text = err instanceof Error ? err.message : "Upload failed.";
+        setError(text);
+
+        // Mark all files as failed with the same error
+        localIds.forEach((localId) => {
           setPendingAttachments((prev) =>
             prev.map((item) =>
               item.local_id === localId
@@ -396,7 +418,7 @@ function ChatPage() {
                 : item,
             ),
           );
-        }
+        });
       }
     },
     [ensureThreadForUpload],

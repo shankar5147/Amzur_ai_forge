@@ -1,0 +1,27 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Database": {
+    "RetryCount": 3,
+    "MaxRetryDelaySeconds": 30,
+    "CommandTimeoutSeconds": 30
+  },
+    "IdentityService": {
+    "BaseUrl": "https://dev-api.f2mx.com",
+    "ApiVersion": "v1"
+  },
+  "WalletService": {
+    "BaseUrl": "https://dev-api.f2mx.com",
+    "ApiVersion": "v1"
+  },
+  "FileStorageService": {
+    "BaseUrl": "https://dev-api.f2mx.com",
+    "ApiVersion": "v1"
+  }
+}

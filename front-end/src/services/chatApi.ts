@@ -243,3 +243,71 @@ export async function uploadAttachment(
     xhr.send(formData);
   });
 }
+
+/**
+ * Upload multiple files in a single batch request
+ * Provides per-file progress tracking
+ */
+export async function uploadAttachmentsBatch(
+  threadId: string,
+  files: File[],
+  onProgressUpdate?: (fileIndex: number, progress: number) => void,
+): Promise<Attachment[]> {
+  const token = localStorage.getItem("access_token");
+
+  return new Promise<Attachment[]>((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("thread_id", threadId);
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${API_BASE_URL}/api/attachments/upload`);
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgressUpdate) {
+        const overallProgress = Math.round((event.loaded / event.total) * 100);
+        // Distribute progress across all files
+        files.forEach((_, index) => {
+          onProgressUpdate(index, overallProgress);
+        });
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error("Network error during upload."));
+    };
+
+    xhr.onload = () => {
+      let parsed: UploadAttachmentsResponse | { detail?: string } = {};
+      try {
+        parsed = JSON.parse(xhr.responseText || "{}");
+      } catch {
+        parsed = {};
+      }
+
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const payload = parsed as UploadAttachmentsResponse;
+        if (!payload.attachments || payload.attachments.length === 0) {
+          reject(
+            new Error("Upload completed but no attachments were returned."),
+          );
+          return;
+        }
+        resolve(payload.attachments);
+        return;
+      }
+
+      reject(
+        new Error((parsed as { detail?: string }).detail ?? "Upload failed."),
+      );
+    };
+
+    xhr.send(formData);
+  });
+}

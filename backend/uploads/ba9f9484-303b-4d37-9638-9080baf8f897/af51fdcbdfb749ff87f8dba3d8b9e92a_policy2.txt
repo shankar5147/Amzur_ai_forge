@@ -1,0 +1,1 @@
+Data classification categories are Public, Internal, Confidential, and Restricted. Security incidents must be reported within 15 minutes. Restricted data access requires approval. 
