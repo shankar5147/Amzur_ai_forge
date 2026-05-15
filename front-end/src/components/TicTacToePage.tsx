@@ -85,9 +85,7 @@ export function TicTacToePage() {
       } catch (err) {
         // Revert optimistic update on error
         setGame((prev) =>
-          prev
-            ? { ...prev, board: game.board, current_turn: "X" }
-            : prev,
+          prev ? { ...prev, board: game.board, current_turn: "X" } : prev,
         );
         setError(err instanceof Error ? err.message : "Move failed");
       } finally {
