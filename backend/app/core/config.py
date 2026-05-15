@@ -43,6 +43,9 @@ class Settings:
     # Google OAuth
     google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "")
 
+    # Google Sheets API (service-account credentials for private sheets)
+    google_sheets_credentials_file: str = os.getenv("GOOGLE_SHEETS_CREDENTIALS_FILE", "")
+
     # CORS
     frontend_origin_regex: str = os.getenv(
         "FRONTEND_ORIGIN_REGEX",

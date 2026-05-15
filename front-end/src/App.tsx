@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
 import { ChatComposer } from "./components/ChatComposer";
 import { ChatMessageList } from "./components/ChatMessageList";
+import { DataQueryPage } from "./components/DataQueryPage";
 import { LoginPage } from "./components/LoginPage";
 import { ThreadSidebar } from "./components/ThreadSidebar";
 import { useAuth } from "./context/AuthContext";
@@ -74,6 +75,7 @@ function ChatPage() {
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [dbMode, setDbMode] = useState(false);
+  const [dataMode, setDataMode] = useState(false);
   const [dbLoading, setDbLoading] = useState(false);
   const loading = chatLoading || imageLoading || dbLoading;
 
@@ -526,7 +528,11 @@ function ChatPage() {
             </button>
             <div className="min-w-0">
               <h1 className="truncate font-heading text-xl text-(--ink) sm:text-2xl">
-                {dbMode ? "DB Query Assistant" : "AI Forge Chat"}
+                {dataMode
+                  ? "Data Query Agent"
+                  : dbMode
+                    ? "DB Query Assistant"
+                    : "AI Forge Chat"}
               </h1>
               <p className="truncate text-xs text-(--muted)">
                 {user?.full_name} &middot; {user?.email}
@@ -536,7 +542,29 @@ function ChatPage() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => {
+                setDataMode(!dataMode);
+                if (!dataMode) setDbMode(false);
+                if (dataMode) {
+                  setMessages([
+                    createMessage(
+                      "assistant",
+                      "Switched to Chat mode. How can I help you?",
+                    ),
+                  ]);
+                }
+              }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                dataMode
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "border border-black/10 text-(--muted) hover:bg-black/5"
+              }`}
+            >
+              {dataMode ? "📊 Data Mode" : "📊 Data"}
+            </button>
+            <button
+              onClick={() => {
                 setDbMode(!dbMode);
+                if (!dbMode) setDataMode(false);
                 setMessages([
                   createMessage(
                     "assistant",
@@ -552,7 +580,7 @@ function ChatPage() {
                   : "border border-black/10 text-(--muted) hover:bg-black/5"
               }`}
             >
-              {dbMode ? "🗄 DB Mode" : "💬 Chat Mode"}
+              {dbMode ? "🗄 DB Mode" : "� DB"}
             </button>
             <button
               onClick={() => {
@@ -567,23 +595,29 @@ function ChatPage() {
         </header>
 
         <section className="flex flex-1 flex-col overflow-hidden">
-          <ChatMessageList messages={messages} loading={loading} />
-          <ChatComposer
-            value={input}
-            disabled={loading}
-            canSend={
-              !!input.trim() ||
-              pendingAttachments.some((item) => item.status === "uploaded")
-            }
-            canGenerateImage={!!input.trim()}
-            generatingImage={imageLoading}
-            attachments={pendingAttachments}
-            onChange={setInput}
-            onFilesAdded={handleFilesAdded}
-            onRemoveAttachment={handleRemoveAttachment}
-            onSubmit={handleSend}
-            onGenerateImage={() => void handleGenerateImage()}
-          />
+          {dataMode ? (
+            <DataQueryPage />
+          ) : (
+            <>
+              <ChatMessageList messages={messages} loading={loading} />
+              <ChatComposer
+                value={input}
+                disabled={loading}
+                canSend={
+                  !!input.trim() ||
+                  pendingAttachments.some((item) => item.status === "uploaded")
+                }
+                canGenerateImage={!!input.trim()}
+                generatingImage={imageLoading}
+                attachments={pendingAttachments}
+                onChange={setInput}
+                onFilesAdded={handleFilesAdded}
+                onRemoveAttachment={handleRemoveAttachment}
+                onSubmit={handleSend}
+                onGenerateImage={() => void handleGenerateImage()}
+              />
+            </>
+          )}
         </section>
 
         {error && (

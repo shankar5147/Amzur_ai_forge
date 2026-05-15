@@ -246,5 +246,70 @@ class ImageGenerationResponse(BaseModel):
     image: GeneratedImageOut
 
 
+# --- Data Query (CSV / Excel / Google Sheets) Schemas ---
+
+class DataFileUploadResponse(BaseModel):
+    session_id: str
+    file_name: str
+    row_count: int
+    column_count: int
+    columns: list[str]
+    preview: list[dict]
+    dtypes: dict[str, str]
+
+
+class GoogleSheetLoadRequest(BaseModel):
+    sheet_url: str = Field(..., min_length=10, max_length=1000)
+
+    @model_validator(mode="after")
+    def validate_url(self) -> GoogleSheetLoadRequest:
+        self.sheet_url = self.sheet_url.strip()
+        if "docs.google.com/spreadsheets" not in self.sheet_url:
+            raise ValueError("Must be a valid Google Sheets URL.")
+        return self
+
+
+class GoogleSheetLoadResponse(BaseModel):
+    session_id: str
+    sheet_title: str
+    row_count: int
+    column_count: int
+    columns: list[str]
+    preview: list[dict]
+    dtypes: dict[str, str]
+
+
+class DataQueryRequest(BaseModel):
+    session_id: str = Field(..., min_length=1)
+    question: str = Field(..., min_length=3, max_length=2000)
+
+    @model_validator(mode="after")
+    def validate_question(self) -> DataQueryRequest:
+        self.question = self.question.strip()
+        if not self.question:
+            raise ValueError("Question cannot be empty.")
+        return self
+
+
+class DataQueryResponse(BaseModel):
+    session_id: str
+    question: str
+    answer: str
+    code: str | None = None
+
+
+class DataSessionInfo(BaseModel):
+    session_id: str
+    file_name: str
+    row_count: int
+    column_count: int
+    columns: list[str]
+    dtypes: dict[str, str]
+
+
+class DataSessionListResponse(BaseModel):
+    sessions: list[DataSessionInfo]
+
+
 # Fix forward reference
 AuthResponse.model_rebuild()

@@ -195,3 +195,54 @@ export interface DatabaseQueryHistory {
   execution_time_ms: number | null;
   created_at: string;
 }
+
+// --- Data Query (CSV / Excel / Google Sheets) Types ---
+
+export interface DataFileUploadResponse {
+  session_id: string;
+  file_name: string;
+  row_count: number;
+  column_count: number;
+  columns: string[];
+  preview: Record<string, unknown>[];
+  dtypes: Record<string, string>;
+}
+
+export interface GoogleSheetLoadRequest {
+  sheet_url: string;
+}
+
+export interface GoogleSheetLoadResponse {
+  session_id: string;
+  sheet_title: string;
+  row_count: number;
+  column_count: number;
+  columns: string[];
+  preview: Record<string, unknown>[];
+  dtypes: Record<string, string>;
+}
+
+export interface DataQueryRequest {
+  session_id: string;
+  question: string;
+}
+
+export interface DataQueryResponseType {
+  session_id: string;
+  question: string;
+  answer: string;
+  code: string | null;
+}
+
+export interface DataSessionInfo {
+  session_id: string;
+  file_name: string;
+  row_count: number;
+  column_count: number;
+  columns: string[];
+  dtypes: Record<string, string>;
+}
+
+export interface DataSessionListResponse {
+  sessions: DataSessionInfo[];
+}
