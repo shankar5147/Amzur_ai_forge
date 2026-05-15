@@ -12,6 +12,7 @@ from app.api.routes.chat import router as chat_router
 from app.api.routes.data_query import router as data_query_router
 from app.api.routes.database import router as database_router
 from app.api.routes.images import router as images_router
+from app.api.routes.research import router as research_router
 from app.api.routes.threads import router as thread_router
 from app.core.config import settings
 from app.core.database import engine
@@ -60,6 +61,7 @@ app.include_router(attachments_router)
 app.include_router(images_router)
 app.include_router(database_router)
 app.include_router(data_query_router)
+app.include_router(research_router)
 
 upload_dir = Path(settings.upload_dir)
 upload_dir.mkdir(parents=True, exist_ok=True)

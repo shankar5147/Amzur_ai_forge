@@ -246,3 +246,42 @@ export interface DataSessionInfo {
 export interface DataSessionListResponse {
   sessions: DataSessionInfo[];
 }
+
+// --- Research Digest Agent Types ---
+
+export interface ResearchPaper {
+  paper_id: string;
+  title: string;
+  authors: string[];
+  abstract: string;
+  published: string;
+  updated: string;
+  pdf_url: string;
+  arxiv_url: string;
+  categories: string[];
+  relevance_score: number;
+}
+
+export interface PaperAnalysis {
+  paper_id: string;
+  title: string;
+  authors: string[];
+  published: string;
+  arxiv_url: string;
+  pdf_url: string;
+  summary: string;
+  key_findings: string[];
+  methodology: string;
+  relevance: "high" | "medium" | "low";
+  limitations: string;
+}
+
+export interface ResearchStatusEvent {
+  step: string;
+  message: string;
+}
+
+export interface ResearchDoneEvent {
+  papers_found?: number;
+  papers_analyzed?: number;
+}

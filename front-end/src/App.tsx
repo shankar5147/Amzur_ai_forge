@@ -5,6 +5,7 @@ import { ChatComposer } from "./components/ChatComposer";
 import { ChatMessageList } from "./components/ChatMessageList";
 import { DataQueryPage } from "./components/DataQueryPage";
 import { LoginPage } from "./components/LoginPage";
+import { ResearchDigestPage } from "./components/ResearchDigestPage";
 import { ThreadSidebar } from "./components/ThreadSidebar";
 import { useAuth } from "./context/AuthContext";
 import {
@@ -76,6 +77,7 @@ function ChatPage() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [dbMode, setDbMode] = useState(false);
   const [dataMode, setDataMode] = useState(false);
+  const [researchMode, setResearchMode] = useState(false);
   const [dbLoading, setDbLoading] = useState(false);
   const loading = chatLoading || imageLoading || dbLoading;
 
@@ -528,11 +530,13 @@ function ChatPage() {
             </button>
             <div className="min-w-0">
               <h1 className="truncate font-heading text-xl text-(--ink) sm:text-2xl">
-                {dataMode
-                  ? "Data Query Agent"
-                  : dbMode
-                    ? "DB Query Assistant"
-                    : "AI Forge Chat"}
+                {researchMode
+                  ? "Research Digest Agent"
+                  : dataMode
+                    ? "Data Query Agent"
+                    : dbMode
+                      ? "DB Query Assistant"
+                      : "AI Forge Chat"}
               </h1>
               <p className="truncate text-xs text-(--muted)">
                 {user?.full_name} &middot; {user?.email}
@@ -542,8 +546,35 @@ function ChatPage() {
           <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={() => {
+                setResearchMode(!researchMode);
+                if (!researchMode) {
+                  setDataMode(false);
+                  setDbMode(false);
+                }
+                if (researchMode) {
+                  setMessages([
+                    createMessage(
+                      "assistant",
+                      "Switched to Chat mode. How can I help you?",
+                    ),
+                  ]);
+                }
+              }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                researchMode
+                  ? "bg-violet-600 text-white hover:bg-violet-700"
+                  : "border border-black/10 text-(--muted) hover:bg-black/5"
+              }`}
+            >
+              {researchMode ? "🔬 Research" : "🔬 Research"}
+            </button>
+            <button
+              onClick={() => {
                 setDataMode(!dataMode);
-                if (!dataMode) setDbMode(false);
+                if (!dataMode) {
+                  setDbMode(false);
+                  setResearchMode(false);
+                }
                 if (dataMode) {
                   setMessages([
                     createMessage(
@@ -564,7 +595,10 @@ function ChatPage() {
             <button
               onClick={() => {
                 setDbMode(!dbMode);
-                if (!dbMode) setDataMode(false);
+                if (!dbMode) {
+                  setDataMode(false);
+                  setResearchMode(false);
+                }
                 setMessages([
                   createMessage(
                     "assistant",
@@ -595,7 +629,9 @@ function ChatPage() {
         </header>
 
         <section className="flex flex-1 flex-col overflow-hidden">
-          {dataMode ? (
+          {researchMode ? (
+            <ResearchDigestPage />
+          ) : dataMode ? (
             <DataQueryPage />
           ) : (
             <>
