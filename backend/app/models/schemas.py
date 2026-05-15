@@ -311,5 +311,28 @@ class DataSessionListResponse(BaseModel):
     sessions: list[DataSessionInfo]
 
 
+# --- Tic Tac Toe Schemas ---
+
+class TicTacToeNewGameRequest(BaseModel):
+    difficulty: str = Field("hard", pattern=r"^(easy|medium|hard)$")
+
+
+class TicTacToeMoveRequest(BaseModel):
+    position: int = Field(..., ge=0, le=8)
+
+
+class TicTacToeGameState(BaseModel):
+    game_id: str
+    board: list[str]
+    current_turn: str
+    winner: str | None = None
+    is_draw: bool = False
+    is_over: bool = False
+    move_history: list[dict] = []
+    difficulty: str = "hard"
+    agent_reasoning: str | None = None
+    error: str | None = None
+
+
 # Fix forward reference
 AuthResponse.model_rebuild()

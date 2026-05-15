@@ -285,3 +285,18 @@ export interface ResearchDoneEvent {
   papers_found?: number;
   papers_analyzed?: number;
 }
+
+// --- Tic Tac Toe Types ---
+
+export interface TicTacToeGameState {
+  game_id: string;
+  board: string[];
+  current_turn: string;
+  winner: string | null;
+  is_draw: boolean;
+  is_over: boolean;
+  move_history: { player: string; position: number; reasoning?: string }[];
+  difficulty: string;
+  agent_reasoning: string | null;
+  error: string | null;
+}

@@ -6,6 +6,7 @@ import { ChatMessageList } from "./components/ChatMessageList";
 import { DataQueryPage } from "./components/DataQueryPage";
 import { LoginPage } from "./components/LoginPage";
 import { ResearchDigestPage } from "./components/ResearchDigestPage";
+import { TicTacToePage } from "./components/TicTacToePage";
 import { ThreadSidebar } from "./components/ThreadSidebar";
 import { useAuth } from "./context/AuthContext";
 import {
@@ -78,6 +79,7 @@ function ChatPage() {
   const [dbMode, setDbMode] = useState(false);
   const [dataMode, setDataMode] = useState(false);
   const [researchMode, setResearchMode] = useState(false);
+  const [tttMode, setTttMode] = useState(false);
   const [dbLoading, setDbLoading] = useState(false);
   const loading = chatLoading || imageLoading || dbLoading;
 
@@ -530,13 +532,15 @@ function ChatPage() {
             </button>
             <div className="min-w-0">
               <h1 className="truncate font-heading text-xl text-(--ink) sm:text-2xl">
-                {researchMode
-                  ? "Research Digest Agent"
-                  : dataMode
-                    ? "Data Query Agent"
-                    : dbMode
-                      ? "DB Query Assistant"
-                      : "AI Forge Chat"}
+                {tttMode
+                  ? "Tic Tac Toe Agent"
+                  : researchMode
+                    ? "Research Digest Agent"
+                    : dataMode
+                      ? "Data Query Agent"
+                      : dbMode
+                        ? "DB Query Assistant"
+                        : "AI Forge Chat"}
               </h1>
               <p className="truncate text-xs text-(--muted)">
                 {user?.full_name} &middot; {user?.email}
@@ -550,6 +554,7 @@ function ChatPage() {
                 if (!researchMode) {
                   setDataMode(false);
                   setDbMode(false);
+                  setTttMode(false);
                 }
                 if (researchMode) {
                   setMessages([
@@ -574,6 +579,7 @@ function ChatPage() {
                 if (!dataMode) {
                   setDbMode(false);
                   setResearchMode(false);
+                  setTttMode(false);
                 }
                 if (dataMode) {
                   setMessages([
@@ -598,6 +604,7 @@ function ChatPage() {
                 if (!dbMode) {
                   setDataMode(false);
                   setResearchMode(false);
+                  setTttMode(false);
                 }
                 setMessages([
                   createMessage(
@@ -614,7 +621,32 @@ function ChatPage() {
                   : "border border-black/10 text-(--muted) hover:bg-black/5"
               }`}
             >
-              {dbMode ? "🗄 DB Mode" : "� DB"}
+              {dbMode ? "🗄 DB Mode" : "🗄 DB"}
+            </button>
+            <button
+              onClick={() => {
+                setTttMode(!tttMode);
+                if (!tttMode) {
+                  setDataMode(false);
+                  setDbMode(false);
+                  setResearchMode(false);
+                }
+                if (tttMode) {
+                  setMessages([
+                    createMessage(
+                      "assistant",
+                      "Switched to Chat mode. How can I help you?",
+                    ),
+                  ]);
+                }
+              }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                tttMode
+                  ? "bg-pink-600 text-white hover:bg-pink-700"
+                  : "border border-black/10 text-(--muted) hover:bg-black/5"
+              }`}
+            >
+              {tttMode ? "🎮 TTT Mode" : "🎮 TTT"}
             </button>
             <button
               onClick={() => {
@@ -629,7 +661,9 @@ function ChatPage() {
         </header>
 
         <section className="flex flex-1 flex-col overflow-hidden">
-          {researchMode ? (
+          {tttMode ? (
+            <TicTacToePage />
+          ) : researchMode ? (
             <ResearchDigestPage />
           ) : dataMode ? (
             <DataQueryPage />
