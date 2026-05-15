@@ -17,7 +17,13 @@ import {
   uploadAttachmentsBatch,
   updateThread,
 } from "./services/chatApi";
-import type { ChatMessage, PendingAttachment, Thread } from "./types/chat";
+import { executeDirectQuery } from "./services/databaseApi";
+import type {
+  ChatMessage,
+  DatabaseQueryResponse,
+  PendingAttachment,
+  Thread,
+} from "./types/chat";
 
 const IMAGE_INTENT_REGEX =
   /\b(generate|create|draw|design|render|make)\b.{0,60}\b(image|picture|photo|logo|art|illustration)\b/i;
@@ -67,7 +73,9 @@ function ChatPage() {
   const [imageLoading, setImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const loading = chatLoading || imageLoading;
+  const [dbMode, setDbMode] = useState(false);
+  const [dbLoading, setDbLoading] = useState(false);
+  const loading = chatLoading || imageLoading || dbLoading;
 
   const clearPendingAttachments = useCallback(() => {
     setPendingAttachments((prev) => {
@@ -241,8 +249,65 @@ function ChatPage() {
     [activeThreadId, clearPendingAttachments, input, loading],
   );
 
+  const handleDbQuery = useCallback(
+    async (queryText?: string) => {
+      const trimmed = (queryText ?? input).trim();
+      if (!trimmed || loading) return;
+
+      setError(null);
+      setInput("");
+      setDbLoading(true);
+
+      const userMsg = createMessage("user", trimmed);
+      setMessages((prev) => [...prev, userMsg]);
+
+      try {
+        const result: DatabaseQueryResponse = await executeDirectQuery(trimmed);
+
+        // Build a markdown table from the results
+        let content = "";
+        if (
+          result.result &&
+          Array.isArray(result.result) &&
+          result.result.length > 0
+        ) {
+          const cols = Object.keys(result.result[0]);
+          content += `| ${cols.join(" | ")} |\n`;
+          content += `| ${cols.map(() => "---").join(" | ")} |\n`;
+          for (const row of result.result) {
+            content += `| ${cols.map((c) => String((row as Record<string, unknown>)[c] ?? "")).join(" | ")} |\n`;
+          }
+          content += `\n*${result.result.length} row${result.result.length !== 1 ? "s" : ""} · ${result.execution_time_ms ?? 0}ms*`;
+        } else {
+          content = "No results returned.";
+        }
+
+        content += `\n\n<details><summary>Show SQL</summary>\n\n\`\`\`sql\n${result.generated_sql}\n\`\`\`\n\n</details>`;
+
+        setMessages((prev) => [...prev, createMessage("assistant", content)]);
+      } catch (err) {
+        const text = err instanceof Error ? err.message : "Query failed.";
+        setError(text);
+        setMessages((prev) => [
+          ...prev,
+          createMessage("assistant", `Query failed: ${text}`),
+        ]);
+      } finally {
+        setDbLoading(false);
+      }
+    },
+    [input, loading],
+  );
+
   const handleSend = async () => {
     const trimmed = input.trim();
+
+    // In DB mode, route to the direct query handler
+    if (dbMode) {
+      await handleDbQuery();
+      return;
+    }
+
     const uploadedAttachmentIds = pendingAttachments
       .filter((item) => item.status === "uploaded" && item.attachment_id)
       .map((item) => item.attachment_id!);
@@ -440,8 +505,9 @@ function ChatPage() {
 
       {sidebarOpen && (
         <ThreadSidebar
-          threads={threads}
+          threads={dbMode ? [] : threads}
           activeThreadId={activeThreadId}
+          dbMode={dbMode}
           onSelectThread={handleSelectThread}
           onNewThread={handleNewThread}
           onDeleteThread={handleDeleteThread}
@@ -450,32 +516,54 @@ function ChatPage() {
       )}
 
       <main className="flex flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-black/10 bg-white/75 px-5 py-3 backdrop-blur">
-          <div className="flex items-center gap-3">
+        <header className="flex shrink-0 items-center justify-between border-b border-black/10 bg-white/75 px-5 py-3 backdrop-blur">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="rounded-lg border border-black/10 p-2 text-sm text-(--muted) transition hover:bg-black/5"
+              className="shrink-0 rounded-lg border border-black/10 p-2 text-sm text-(--muted) transition hover:bg-black/5"
             >
               ☰
             </button>
-            <div>
-              <h1 className="font-heading text-xl text-(--ink) sm:text-2xl">
-                AI Forge Chat
+            <div className="min-w-0">
+              <h1 className="truncate font-heading text-xl text-(--ink) sm:text-2xl">
+                {dbMode ? "DB Query Assistant" : "AI Forge Chat"}
               </h1>
-              <p className="text-xs text-(--muted)">
+              <p className="truncate text-xs text-(--muted)">
                 {user?.full_name} &middot; {user?.email}
               </p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              logout();
-              navigate("/login");
-            }}
-            className="rounded-lg border border-black/10 px-4 py-2 text-sm text-(--muted) transition hover:bg-black/5"
-          >
-            Logout
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              onClick={() => {
+                setDbMode(!dbMode);
+                setMessages([
+                  createMessage(
+                    "assistant",
+                    dbMode
+                      ? "Switched to Chat mode. How can I help you?"
+                      : "Switched to DB Query mode. Ask me anything about your database in plain English!",
+                  ),
+                ]);
+              }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                dbMode
+                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                  : "border border-black/10 text-(--muted) hover:bg-black/5"
+              }`}
+            >
+              {dbMode ? "🗄 DB Mode" : "💬 Chat Mode"}
+            </button>
+            <button
+              onClick={() => {
+                logout();
+                navigate("/login");
+              }}
+              className="rounded-lg border border-black/10 px-4 py-2 text-sm text-(--muted) transition hover:bg-black/5"
+            >
+              Logout
+            </button>
+          </div>
         </header>
 
         <section className="flex flex-1 flex-col overflow-hidden">

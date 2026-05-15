@@ -29,6 +29,9 @@ class User(Base):
     generated_images: Mapped[list[GeneratedImage]] = relationship(
         "GeneratedImage", back_populates="user", lazy="selectin", cascade="all, delete-orphan"
     )
+    database_connections: Mapped[list[DatabaseConnection]] = relationship(
+        "DatabaseConnection", back_populates="user", lazy="selectin", cascade="all, delete-orphan"
+    )
 
 
 class Thread(Base):
@@ -121,3 +124,44 @@ class GeneratedImage(Base):
 
     user: Mapped[User] = relationship("User", back_populates="generated_images")
     thread: Mapped[Thread] = relationship("Thread", back_populates="generated_images")
+
+
+class DatabaseConnection(Base):
+    __tablename__ = "database_connections"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    db_type: Mapped[str] = mapped_column(String(50), nullable=False)  # "postgresql", "mysql", "sqlite", etc.
+    host: Mapped[str] = mapped_column(String(255), nullable=False)
+    port: Mapped[int] = mapped_column(Integer, nullable=False)
+    database_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    username: Mapped[str] = mapped_column(String(255), nullable=False)
+    password: Mapped[str] = mapped_column(String(512), nullable=False)  # Should be encrypted in production
+    ssl_enabled: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+    schema_info: Mapped[str | None] = mapped_column(Text, nullable=True)  # Stores table/column metadata as JSON
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+    )
+
+    user: Mapped[User] = relationship("User")
+    queries: Mapped[list[DatabaseQuery]] = relationship(
+        "DatabaseQuery", back_populates="connection", lazy="selectin", cascade="all, delete-orphan"
+    )
+
+
+class DatabaseQuery(Base):
+    __tablename__ = "database_queries"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    connection_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("database_connections.id", ondelete="CASCADE"), nullable=False, index=True)
+    natural_language_query: Mapped[str] = mapped_column(Text, nullable=False)
+    generated_sql: Mapped[str] = mapped_column(Text, nullable=False)
+    result: Mapped[str | None] = mapped_column(Text, nullable=True)  # Stores result as JSON string
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    execution_time_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    connection: Mapped[DatabaseConnection] = relationship("DatabaseConnection", back_populates="queries")

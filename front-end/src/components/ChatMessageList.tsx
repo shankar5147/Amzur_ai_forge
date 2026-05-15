@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 
@@ -222,10 +223,10 @@ export function ChatMessageList({ messages, loading }: ChatMessageListProps) {
             className={`flex ${isUser ? "justify-end" : "justify-start"}`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:text-base ${
+              className={`rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm sm:text-base ${
                 isUser
-                  ? "bg-(--ink) text-(--paper)"
-                  : "bg-(--mist) text-(--ink)"
+                  ? "max-w-[70%] bg-(--ink) text-(--paper)"
+                  : "max-w-[90%] bg-(--mist) text-(--ink)"
               }`}
             >
               {!!message.attachments?.length && (
@@ -243,7 +244,48 @@ export function ChatMessageList({ messages, loading }: ChatMessageListProps) {
                 <div className="prose prose-sm max-w-none prose-headings:mt-3 prose-headings:mb-1 prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5 prose-code:rounded prose-code:bg-black/5 prose-code:px-1 prose-code:py-0.5 prose-pre:rounded-lg prose-pre:bg-gray-900 prose-pre:text-gray-100">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm, remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
+                    rehypePlugins={[rehypeRaw, rehypeKatex]}
+                    components={{
+                      table: ({ children, ...props }) => (
+                        <div className="not-prose my-3 max-h-96 overflow-auto rounded-lg border border-black/10">
+                          <table
+                            className="min-w-full text-left text-sm"
+                            {...props}
+                          >
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      thead: ({ children, ...props }) => (
+                        <thead
+                          className="sticky top-0 bg-gray-50 text-xs font-semibold uppercase text-gray-500"
+                          {...props}
+                        >
+                          {children}
+                        </thead>
+                      ),
+                      th: ({ children, ...props }) => (
+                        <th className="whitespace-nowrap px-4 py-2" {...props}>
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children, ...props }) => (
+                        <td
+                          className="whitespace-nowrap px-4 py-2 text-gray-700"
+                          {...props}
+                        >
+                          {children}
+                        </td>
+                      ),
+                      tr: ({ children, ...props }) => (
+                        <tr
+                          className="border-t border-gray-100 hover:bg-gray-50/50"
+                          {...props}
+                        >
+                          {children}
+                        </tr>
+                      ),
+                    }}
                   >
                     {message.content}
                   </ReactMarkdown>

@@ -139,3 +139,59 @@ export interface AuthResponse {
   token_type: string;
   user: UserInfo;
 }
+
+// --- Database Query Types ---
+
+export interface DatabaseConnection {
+  id: string;
+  name: string;
+  db_type: string;
+  host: string;
+  port: number;
+  database_name: string;
+  username: string;
+  ssl_enabled: boolean;
+  is_active: boolean;
+  schema_info: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DatabaseConnectionCreate {
+  name: string;
+  db_type: string;
+  host: string;
+  port: number;
+  database_name: string;
+  username: string;
+  password: string;
+  ssl_enabled: boolean;
+}
+
+export interface DatabaseConnectionListResponse {
+  connections: DatabaseConnection[];
+}
+
+export interface DatabaseQueryRequest {
+  connection_id: string;
+  natural_language_query: string;
+}
+
+export interface DatabaseQueryResponse {
+  query_id: string;
+  generated_sql: string;
+  result: Record<string, unknown>[] | null;
+  error: string | null;
+  execution_time_ms: number | null;
+}
+
+export interface DatabaseQueryHistory {
+  id: string;
+  connection_id: string;
+  natural_language_query: string;
+  generated_sql: string;
+  result: string | null;
+  error: string | null;
+  execution_time_ms: number | null;
+  created_at: string;
+}

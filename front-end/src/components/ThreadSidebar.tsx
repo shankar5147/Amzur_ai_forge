@@ -4,6 +4,7 @@ import type { Thread } from "../types/chat";
 interface ThreadSidebarProps {
   threads: Thread[];
   activeThreadId: string | null;
+  dbMode?: boolean;
   onSelectThread: (threadId: string) => void;
   onNewThread: () => void;
   onDeleteThread: (threadId: string) => void;
@@ -13,6 +14,7 @@ interface ThreadSidebarProps {
 export function ThreadSidebar({
   threads,
   activeThreadId,
+  dbMode,
   onSelectThread,
   onNewThread,
   onDeleteThread,
@@ -36,7 +38,9 @@ export function ThreadSidebar({
   return (
     <aside className="flex h-full w-64 flex-col border-r border-black/10 bg-white/60 backdrop-blur">
       <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
-        <h2 className="font-heading text-sm font-medium text-(--ink)">Chats</h2>
+        <h2 className="font-heading text-sm font-medium text-(--ink)">
+          {dbMode ? "DB Queries" : "Chats"}
+        </h2>
         <button
           onClick={onNewThread}
           className="rounded-lg bg-(--clay) px-3 py-1.5 text-xs font-medium text-white transition hover:bg-(--clay)/90"
@@ -48,7 +52,9 @@ export function ThreadSidebar({
       <nav className="flex-1 overflow-y-auto p-2">
         {threads.length === 0 && (
           <p className="px-2 py-4 text-center text-xs text-(--muted)">
-            No conversations yet
+            {dbMode
+              ? "Ask a question about your database below"
+              : "No conversations yet"}
           </p>
         )}
         {threads.map((thread) => (

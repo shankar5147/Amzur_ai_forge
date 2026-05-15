@@ -149,6 +149,96 @@ class ImageGenerationRequest(BaseModel):
         return self
 
 
+# --- Database Connection Schemas ---
+
+class DatabaseConnectionCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    db_type: str = Field(..., description="Database type: postgresql, mysql, sqlite")
+    host: str = Field(..., max_length=255)
+    port: int = Field(..., ge=1, le=65535)
+    database_name: str = Field(..., max_length=255)
+    username: str = Field(..., max_length=255)
+    password: str = Field(..., max_length=512)
+    ssl_enabled: bool = Field(default=False)
+
+    @model_validator(mode="after")
+    def validate_db_type(self) -> DatabaseConnectionCreate:
+        if self.db_type.lower() not in ["postgresql", "mysql", "sqlite"]:
+            raise ValueError("db_type must be one of: postgresql, mysql, sqlite")
+        return self
+
+
+class DatabaseConnectionUpdate(BaseModel):
+    name: str | None = Field(default=None, max_length=255)
+    password: str | None = Field(default=None, max_length=512)
+    is_active: bool | None = None
+
+
+class DatabaseConnectionOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    db_type: str
+    host: str
+    port: int
+    database_name: str
+    username: str
+    ssl_enabled: bool
+    is_active: bool
+    schema_info: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DatabaseConnectionListResponse(BaseModel):
+    connections: list[DatabaseConnectionOut]
+
+
+class DatabaseQueryRequest(BaseModel):
+    connection_id: uuid.UUID
+    natural_language_query: str = Field(..., min_length=3, max_length=2000)
+
+    @model_validator(mode="after")
+    def validate_query(self) -> DatabaseQueryRequest:
+        self.natural_language_query = self.natural_language_query.strip()
+        if not self.natural_language_query:
+            raise ValueError("Query text cannot be empty.")
+        return self
+
+
+class DatabaseQueryOut(BaseModel):
+    id: uuid.UUID
+    connection_id: uuid.UUID
+    natural_language_query: str
+    generated_sql: str
+    result: str | None = None
+    error: str | None = None
+    execution_time_ms: int | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class DatabaseQueryResponse(BaseModel):
+    query_id: uuid.UUID | None = None
+    generated_sql: str
+    result: dict | list | str | None = None
+    error: str | None = None
+    execution_time_ms: int | None = None
+
+
+class DirectQueryRequest(BaseModel):
+    natural_language_query: str = Field(..., min_length=3, max_length=2000)
+
+    @model_validator(mode="after")
+    def validate_query(self) -> DirectQueryRequest:
+        self.natural_language_query = self.natural_language_query.strip()
+        if not self.natural_language_query:
+            raise ValueError("Query text cannot be empty.")
+        return self
+
+
 class ImageGenerationResponse(BaseModel):
     thread_id: uuid.UUID
     user_message: MessageOut
