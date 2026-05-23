@@ -40,6 +40,7 @@ function RelevanceBadge({ level }: { level: string }) {
 
 export function ResearchDigestPage() {
   const [topic, setTopic] = useState("");
+  const [useMcp, setUseMcp] = useState(false);
   const [step, setStep] = useState<AgentStep>("idle");
   const [statusMsg, setStatusMsg] = useState("");
   const [queries, setQueries] = useState<string[]>([]);
@@ -69,44 +70,48 @@ export function ResearchDigestPage() {
     setError(null);
     setStats(null);
 
-    const controller = streamResearch(topic.trim(), {
-      onStatus: (data) => {
-        setStep(data.step as AgentStep);
-        setStatusMsg(data.message);
+    const controller = streamResearch(
+      topic.trim(),
+      {
+        onStatus: (data) => {
+          setStep(data.step as AgentStep);
+          setStatusMsg(data.message);
+        },
+        onQueries: (data) => {
+          setQueries(data.queries);
+        },
+        onPapers: (data) => {
+          setPapers(data as ResearchPaper[]);
+        },
+        onPaperAnalysis: (data) => {
+          setAnalyses((prev) => [...prev, data as PaperAnalysis]);
+        },
+        onDigest: (data) => {
+          setDigest(data.content);
+          setTimeout(
+            () => digestRef.current?.scrollIntoView({ behavior: "smooth" }),
+            200,
+          );
+        },
+        onError: (data) => {
+          setError(data.message);
+          setStep("error");
+        },
+        onDone: (data) => {
+          setStep((prev) => (prev === "error" ? "error" : "done"));
+          if (data.papers_found != null) {
+            setStats({
+              found: data.papers_found,
+              analyzed: data.papers_analyzed,
+            });
+          }
+        },
       },
-      onQueries: (data) => {
-        setQueries(data.queries);
-      },
-      onPapers: (data) => {
-        setPapers(data as ResearchPaper[]);
-      },
-      onPaperAnalysis: (data) => {
-        setAnalyses((prev) => [...prev, data as PaperAnalysis]);
-      },
-      onDigest: (data) => {
-        setDigest(data.content);
-        setTimeout(
-          () => digestRef.current?.scrollIntoView({ behavior: "smooth" }),
-          200,
-        );
-      },
-      onError: (data) => {
-        setError(data.message);
-        setStep("error");
-      },
-      onDone: (data) => {
-        setStep((prev) => (prev === "error" ? "error" : "done"));
-        if (data.papers_found != null) {
-          setStats({
-            found: data.papers_found,
-            analyzed: data.papers_analyzed,
-          });
-        }
-      },
-    });
+      useMcp,
+    );
 
     abortRef.current = controller;
-  }, [topic, running]);
+  }, [topic, running, useMcp]);
 
   const handleCancel = useCallback(() => {
     abortRef.current?.abort();
@@ -149,6 +154,36 @@ export function ResearchDigestPage() {
           Enter a research topic and let the AI agent autonomously search arXiv,
           analyze papers, and generate a structured digest.
         </p>
+
+        {/* ── Backend mode toggle ── */}
+        <div className="mb-4 flex items-center justify-center gap-3">
+          <span
+            className={`text-xs font-medium ${!useMcp ? "text-violet-700" : "text-gray-400"}`}
+          >
+            Direct arXiv
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={useMcp}
+            disabled={running}
+            onClick={() => setUseMcp((v) => !v)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-50 ${
+              useMcp ? "bg-violet-600" : "bg-gray-200"
+            }`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                useMcp ? "translate-x-5" : "translate-x-0"
+              }`}
+            />
+          </button>
+          <span
+            className={`text-xs font-medium ${useMcp ? "text-violet-700" : "text-gray-400"}`}
+          >
+            MCP Server
+          </span>
+        </div>
 
         <div className="flex gap-2">
           <input

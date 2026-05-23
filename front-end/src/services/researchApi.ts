@@ -18,15 +18,21 @@ export interface ResearchEventHandlers {
 /**
  * Start the research agent and stream events.
  * Returns an AbortController that can cancel the stream.
+ *
+ * @param useMcp  When `true`, routes the request to the MCP-powered
+ *                `/api/mcp-research/stream` endpoint (Project 12).
+ *                Default (`false`) uses the original direct-arXiv endpoint.
  */
 export function streamResearch(
   topic: string,
   handlers: ResearchEventHandlers,
+  useMcp: boolean = false,
 ): AbortController {
   const controller = new AbortController();
 
   const token = localStorage.getItem("access_token");
-  const url = `${API_BASE_URL}/api/research/stream?topic=${encodeURIComponent(topic)}`;
+  const prefix = useMcp ? "mcp-research" : "research";
+  const url = `${API_BASE_URL}/api/${prefix}/stream?topic=${encodeURIComponent(topic)}`;
 
   fetch(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},

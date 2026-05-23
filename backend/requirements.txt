@@ -27,3 +27,6 @@ pymysql>=1.1.0
 psycopg2-binary>=2.9.0
 mysql-connector-python>=8.0.33
 asyncmy>=0.2.9
+langgraph>=0.2.0
+mcp>=1.0.0
+arxiv-mcp-server>=0.3.0
